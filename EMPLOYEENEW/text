@@ -1,0 +1,231 @@
+<div class="content">
+  <div class="row">
+    <!-- unang hati -->
+      <div class="col-xl-8 col-lg border height-100vh " style="border: 1px solid #F6E3F3; border-radius:10px;">
+        <div class="content row d-flex" >
+      <!-- INFO 1 START -->
+        <div class="card col-lg-12 shadow" style="border: 1px solid #F6E3F3; border-radius:10px;">
+          <div class="row">
+          
+         
+        </div>       
+      </div>
+<div class="card col-12 shadow mt-3" style="background: rgba(58,161,166,0.2); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border: 1px solid rgba(58,161,166,0.1);">
+
+  <div class="content" >
+    <div class="row row-cols-1 row-cols-md-3  " style="border: 1px solid #F6E3F3; border-radius:10px;" >
+
+    <div class="card1 text-bg-info  col-4" style="border: 1px solid #F6E3F3; border-radius:10px;">
+      <div class="h-100" >
+        <div class="title1">TOTAL ATTENDANCE</div>
+    <div class="card-body text-center" style="color:#28DF99;">
+      <h3><?php echo isset($rowattquery['TOTAL_ATTENDANCE']) ? $rowattquery['TOTAL_ATTENDANCE'] : 0; ?></h3>
+    </div>
+  </div>
+</div>
+
+<div class="card1 text-bg-info col-4" style="border: 1px solid #F6E3F3; border-radius:10px;">
+  <div class=" h-100">
+    <div class="title1">TOTAL LATE</div>
+      <div class="card-body text-center" style="color:#28DF99;">
+        <h3><?php echo isset($rowattquery['TOTAL_LATE_HOURS']) ? $rowattquery['TOTAL_LATE_HOURS'] : 0; ?></h3>
+      </div>
+  </div>
+</div>
+   <div class="card1 text-bg-info col-4" style="border: 1px solid #F6E3F3; border-radius:10px;">
+    <div class="h-100">
+     <div class="title1">TOTAL UNDERTIME</div>
+      <div class="card-body text-center" style="color:#28DF99;">
+        <h3><?php echo isset($rowattquery['TOTAL_UNDERTIME_HOURS']) ? $rowattquery['TOTAL_UNDERTIME_HOURS'] : 0; ?></h3>
+      </div>
+  </div>
+</div>
+</div>
+</div>
+ 
+</div>
+
+<div class="col-12 card shadow" style="border: 1px solid #F6E3F3; border-radius:10px;">
+  <div class="d-flex justify-content-center " >
+    <a  class="btn btn-sm" id="collapseBtn" onclick="toggleCollapse()">Attendance Table  <i class="fa-solid fa-arrow-down"></i></a>
+    </div>
+
+  <div id="content1">
+    <div class="content">
+      <div class="row">
+         <div class="col-12">
+            <div class="table-responsive" >
+              <table class="table table-bordered table-responsive table-striped " >
+                <thead class="table-dark " >
+                  <tr>
+                    <th>DATE</th>
+                    <th >IN</th>
+                    <th>OUT</th>
+                    <th>Reg. Hours</th>
+                    <th></th>
+                    <th>IN</th>
+                    <th>OUT</th>
+                    <th>OT Hours</th>
+                    <th>Daily Total</th>                 
+                  </tr>
+                </thead>
+                <tbody>
+                  <?php
+                  if(isset($payperiodexec)){
+                    while ($payperiodarray = mysqli_fetch_array($payperiodexec)) {
+                      $dtrday = $payperiodarray['DTR_day'];
+                      $day = date('d', strtotime($dtrday));
+                      $hrswrk = $payperiodarray['hours_work'];
+                      $overtimeinout = "SELECT * FROM OVER_TIME WHERE emp_id = '$empid' and ot_day = '$dtrday' and ot_remarks ='Approved'";
+                      $overtimeinoutexec = mysqli_query($conn, $overtimeinout) or die ("FAILED TO EXECUTE OT QUERY " . mysqli_error($conn));
+                      $overtimearray = mysqli_fetch_array($overtimeinoutexec);
+
+                      if ($overtimearray) {
+                          $otin = $overtimearray['ot_time'];
+                          $otout = $overtimearray['ot_timeout'];
+                      } else {
+                          $otin = "";
+                          $otout = "";
+                      }
+                  ?>
+                  <tr>
+                      <td><?php echo $day; ?></td>
+                      <td><?php echo $payperiodarray['in_morning']; ?></td>
+                      <td><?php echo $payperiodarray['out_afternoon']; ?></td>
+                      <td><?php echo $hrswrk; ?></td>
+                      <td></td>
+                      <td><?php echo $otin; ?></td>
+                      <td><?php echo $otout; ?></td>
+                      <td><?php echo $payperiodarray['overtime_hours']; ?></td>
+                      <td><?php echo $payperiodarray['totalhours']; ?></td>
+                  </tr>
+                  <?php
+              }
+            }
+          ?>
+
+                  
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>   
+    </div>
+  </div>
+</div>
+<!-- end unang hati -->
+
+<!-- 2nd hati -->
+<div class="col-lg-4 col-md-12 height-100vh" >
+  <div class="card text-center" style="border: 1px solid #F6E3F3; border-radius:10px;">
+    <div class="card-header" style="border: 1px solid #F6E3F3; border-radius:10px;">
+      <ul class="nav nav-tabs card-header-tabs" id="myTab" style="border: 1px solid #F6E3F3; border-radius:10px;">
+        <li class="nav-item"><a href="#home" class="nav-link active" data-bs-toggle="tab">Chart</a></li>
+          <li class="nav-item"><a href="#profile" class="nav-link" data-bs-toggle="tab">Timeline</a></li>
+      </ul>
+    </div>
+    <div class="card-body">
+      <div class="tab-content d-flex align-items-center justify-content-center">
+        <div class="tab-pane fade show active" id="home">
+          <div class="chart pb-2">             
+            <canvas id="myPieChart" width="280" height="280"></canvas>
+          </div>
+
+    <form action="" method="post">
+      <div class="row mt-1">
+        <div class="col-10">
+          <select class="form-select form-select-sm" id="sel" aria-label="Small select example" name="payfunction">
+              <option value="Generate Payslip" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'Generate Payslip') ? 'selected' : ''; ?>>Generate Payslip</option>
+              <option value="View DTR" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View DTR') ? 'selected' : ''; ?>>View DTR</option>
+              <option value="View Timesheet" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View Timesheet') ? 'selected' : ''; ?>>View Timesheet</option>
+              <option value="View Leaves" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View Leaves') ? 'selected' : ''; ?>>View Leaves</option>
+           </select>
+           <label for="sel" style="color: #123123;">Select Function</label>
+        </div>
+               
+        <div class="sub col-2">
+          <button type="submit" class="btn btn-primary printbtn" name="pperiod_btn1" style="margin-bottom: 20px;" >Go</button>
+        </div>
+      </div>
+
+      <div class="row1">
+      <!-- <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post"> -->
+    <?php
+    $payperiodsquery = "SELECT * FROM payperiods";
+    $payperiodsexecquery = mysqli_query($conn, $payperiodsquery) or die ("FAILED TO EXECUTE PAYPERIOD QUERY " . mysqli_error($conn));
+    ?>
+    <div class="controls">
+      <div class="row">
+        <div class="col-10">
+            <select name="payperiod" class="form-select form-select-sm" id="sel2" required>
+              <option value=""></option>
+                <?php
+                // Iterate through pay periods
+                while ($payperiodchoice = mysqli_fetch_array($payperiodsexecquery)) {
+                    $selected = ($payperiodchoice['pperiod_range'] == $_SESSION['payperiods']) ? 'selected' : '';
+                    ?>
+                    <option value="<?php echo $payperiodchoice['pperiod_range']; ?>" <?php echo $selected; ?>>
+                        <?php echo $payperiodchoice['pperiod_range']; ?>
+                    </option>
+                <?php } ?>
+            </select>
+
+        <label for="sel2" style="color: #123123;">Selecy Payroll Period</label>
+      </div>
+      <div class="col-2">
+      <button type="submit" class="btn btn-primary printbtn" name="pperiod_btn" style="margin-bottom: 20px;" >Go</button>
+      </div>
+      <div class="button d-flex justify-content-center align-items-center pt-2">
+        <div class = "uinfotab3"><a href ="try.php" class = "btn btn-success btn-sm"><span class="icon"><i class="icon-refresh"></i></span> Refresh</a></div>
+      </div>
+    </div>       
+  </div>
+    </form>
+  </div>
+</div>
+              
+<div class="tab-pane fade border-start text-dark" id="profile">
+  <ul class="timeline">
+    <li class="timeline-item">
+        <div class="timeline-content">
+          <div class="timeline-date">Date Hired</div>
+            <HR></HR>
+            <div class="timeline-title"><?php echo $currdatehired; ?></div>
+            <div class="timeline-description"><?php echo $currposition; ?></div>
+          </div>
+    </li>
+    <?php if ($currdateregularized != '0000-00-00' && $currdateregularized != '') { ?>
+    <li class="timeline-item">
+        <div class="timeline-content">
+            <div class="timeline-date">Date Regularized</div>
+            <div class="timeline-title"><?php echo $currdateregularized; ?></div>
+            <div class="timeline-description"><?php echo $currposition; ?></div>
+        </div>
+    </li>
+    <?php } ?>
+    <?php if ($currdateresigned != '0000-00-00' && $currdateresigned != '') { ?>
+    <li class="timeline-item">
+        <div class="timeline-content">
+            <div class="timeline-date">Date Resigned</div>
+            <div class="timeline-title"><?php echo $currdateresigned; ?></div>
+            <div class="timeline-description">Resigned</div>
+        </div>
+    </li>
+<?php
+  }
+  ?>
+  </ul>
+
+<style>
+
+  </style>
+                </div>
+            </div>
+        </div>
+    </div>
+            <!-- chart -->
+  </div>
+</div>
