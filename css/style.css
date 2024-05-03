@@ -1,0 +1,20 @@
+body {
+
+background-color:gray;
+
+}
+
+h9 {
+    color: black;
+    font-size: 30px;
+}
+
+
+.center {
+  margin: auto;
+  width: 600%;
+  border: 3px solid #73AD21;
+  padding: 1000px;
+}
+
+  

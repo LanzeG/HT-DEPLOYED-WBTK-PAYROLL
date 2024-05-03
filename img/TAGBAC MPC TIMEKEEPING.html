@@ -1,0 +1,100 @@
+
+
+ 
+
+
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+        <title>TAGBAC MPC TIMEKEEPING</title><meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="refresh" content="180">
+        <link rel="stylesheet" href="css/bootstrap.min.css" />
+        <link rel="stylesheet" href="css/bootstrap-responsive.min.css" />
+        <link rel="stylesheet" href="css/maruti-login.css" />
+        <script src="jquery-3.2.1.min.js"></script>
+</head>
+
+<SCRIPT LANGUAGE="JavaScript">
+function showDate()
+{
+    var now = new Date();
+    var days = new Array('Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday');
+    var months = new Array('January','February','March','April','May','June','July','August','September','October','November','December');
+    var date = ((now.getDate()<10) ? "0" : "")+ now.getDate();
+    function fourdigits(number)
+    {
+        return (number < 1000) ? number + 1900 : number;
+    }
+    
+    tnow=new Date();
+    thour=now.getHours();
+    tmin=now.getMinutes();
+    tsec=now.getSeconds();
+    
+    if (tmin<=9) { tmin="0"+tmin; }
+    if (tsec<=9) { tsec="0"+tsec; }
+    if (thour<10) { thour="0"+thour; }
+    
+    today = thour + ":" + tmin +":"+ tsec +" - "+ days[now.getDay()] + ", " + date + " " + months[now.getMonth()] + ", " + (fourdigits(now.getYear()));
+    document.getElementById("dateDiv").innerHTML = today;
+}
+setInterval("showDate()", 1000);
+
+
+///submit after 20 characters
+$(function(){
+    $('#rfidenter').keyup(function(){
+       if(this.value.length ==20){
+          
+         $('#loginform').submit()
+
+       }
+    }); 
+})
+//submit after 20 characters
+
+
+
+</script>
+    <body>
+    	<center> <img src = "img/tagbaclogo2.jpg"> </center>
+        <center><br>
+            <h1>TAGBAC MULTI-PURPOSE COOPERATIVE</h1>
+            <h2><small>Time-keeping System</small></h2>
+            <br>
+        <div id="loginbox">            
+            
+            <form id="loginform" class="form-vertical" method ="POST">
+                 <!--<div class="control-group normal_text"> <h3><img src="img/logo.png" alt="Logo" /></h3></div>-->
+                 <div class="control-group normal_text" style = "background:#003366;"><h4><div id="dateDiv"></div></h4></div>
+                 
+
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="main_input_box">
+                                               		<br>
+                            <span id = "label"><b><i>Tap RFID to record your attendance:</i></b></span>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                
+               <div class="control-group">
+                    <div class="controls">
+                        <div class="main_input_box">
+                            
+                           
+                            <input type="password" placeholder="RFID" id="rfidenter" name = "rfidvalue" autofocus="autofocus" maxLength = "20">
+                            
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+        <script src="js/jquery.min.js"></script>  
+        <script src="js/maruti.login.js"></script> 
+    </body>
+</html>
