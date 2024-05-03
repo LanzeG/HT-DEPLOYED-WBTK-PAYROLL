@@ -269,7 +269,7 @@ if ($printarray){
             <canvas id="myPieChart"></canvas>
             </div>
             <form action="" method="post">
-    <div class="row mt-1">
+    <div class="row mt-1 pb-2">
         <div class="col-6">
           <select class="form-select form-select-sm" id="sel" aria-label="Small select example" name="payfunction">
               <option value="Generate Payslip" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'Generate Payslip') ? 'selected' : ''; ?>>Generate Payslip</option>
@@ -410,66 +410,77 @@ var lineChart = new Chart(ctx, {
 
           <!-- New Card Section -->
 <div class="col-lg-4 col-md-6" style="margin-top: 20px;">
-    <div id="content1">
-        <div class="content">
-                 <div class="row">
-                      <div class="col-12">
-                          <div class="table shadow d-flex align-items-center table-responsive">
-                              <table class="table table-striped">
-                                  <thead shadow style="background-color: #2ff29e; color: #4929aa;">
-                                      <tr>
-                                          <th style="border-top-left-radius: 10px;">DATE</th>
-                                          <th>IN</th>
-                                          <th>OUT</th>
-                                          <th>REG. HOURS</th>
-                                          <th></th>
-                                          <th style="border-top-right-radius: 10px;">REMARKS</th>
-                                      </tr>
-                                  </thead>
-                                  <tbody>
-                                      <?php
-                                      if (isset($payperiodexec)) {
-                                          if (mysqli_num_rows($payperiodexec) > 0) {
-                                              while ($payperiodarray = mysqli_fetch_array($payperiodexec)) {
-                                                  $dtrday = $payperiodarray['DTR_day'];
-                                                  $day = date('d', strtotime($dtrday));
-                                                  $hrswrk = $payperiodarray['hours_work'];
-                                                   ?>
-                                                  <tr>
-                                                      <td><?php echo $day; ?></td>
-                                                      <td><?php echo $payperiodarray['in_morning']; ?></td>
-                                                      <td><?php echo $payperiodarray['out_afternoon']; ?></td>
-                                                      <td><?php echo $hrswrk; ?></td>
-                                                      <td></td>
-                                                      <td><?php echo $payperiodarray['DTR_remarks']; ?></td>
-                                                  </tr>
-                                      <?php
-                                              }
-                                          } else {
-                                            $dateRange = $_SESSION['payperiods'];
-                                            $dateParts = explode(' to ', $dateRange);
-                                            if (count($dateParts) === 2) {
-                                                $startDate = date('F j, Y', strtotime($dateParts[0]));
-                                                $endDate = date('F j, Y', strtotime($dateParts[1]));
-                                                echo "<tr><td colspan='6'>NO DATA FOUND ON ($startDate to $endDate)</td></tr>";
-                                            } else {
-                                                echo "<tr><td colspan='6'>NO DATA FOUND ON (" . $_SESSION['payperiods'] . ")</td></tr>";
-                                            }
-                                          }
-                                      } else {
-                                          echo "<tr><td colspan='6'>NO SELECTED PAYROLL PERIOD</td></tr>";
-                                      }
-                                      ?>
-                                  </tbody>
-                              </table>
-                          </div>
-                      </div>
-                  </div>
+    <div class="shadow">
+            <div style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+                <div class="row" style="position: sticky; top: 0; background-color: white; z-index: 1;">
+                    <div class="col">
+                        <div class="card mb-0" style="border-top-left-radius: 10px; border-top-right-radius: 10px;  background-color: #2ff29e; color: #4929aa;">
+                            <div class="shadow-body p-2">
+                            <div class="header-container">
+                                <div class="header-item">
+                                   <span class="header-text">Date</span>
+                                </div>
+                                <div class="header-item">
+                                   <span class="header-text">In</span>
+                                </div>
+                                <div class="header-item">
+                                    <span class="header-text">Out</span>
+                                </div>
+                                <div class="header-item">
+                                    <span class="header-text">Reg. Hours</span>
+                                </div>
+                                <div class="header-item">
+                                    <span class="header-text">Remarks</span>
+                                </div>
+                            </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <?php
+                if (isset($payperiodexec)) {
+                    if (mysqli_num_rows($payperiodexec) > 0) {
+                        while ($payperiodarray = mysqli_fetch_array($payperiodexec)) {
+                            $dtrday = $payperiodarray['DTR_day'];
+                            $day = date('d', strtotime($dtrday));
+                            $hrswrk = $payperiodarray['hours_work'];
+                            ?>
+                            <div class="row">
+                                <div class="col" style="background-color: #E6EAFE;">
+                                    <div class="card mb-0">
+                                        <div class="card-body" >
+                                            <div class="row ">
+                                                <div class="col ml-3"><?php echo $day; ?></div>
+                                                <div class="col"><?php echo $payperiodarray['in_morning']; ?></div>
+                                                <div class="col"><?php echo $payperiodarray['out_afternoon']; ?></div>
+                                                <div class="col"><?php echo $hrswrk; ?></div>
+                                                <div class="col"><?php echo $payperiodarray['DTR_remarks']; ?></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                               }
+                              } else {
+                                $dateRange = $_SESSION['payperiods'];
+                                $dateParts = explode(' to ', $dateRange);
+                                if (count($dateParts) === 2) {
+                                    $startDate = date('F j, Y', strtotime($dateParts[0]));
+                                    $endDate = date('F j, Y', strtotime($dateParts[1]));
+                                    echo "<tr><td colspan='6'>NO DATA FOUND ON ($startDate to $endDate)</td></tr>";
+                                } else {
+                                    echo "<tr><td col='6'>NO DATA FOUND ON (" . $_SESSION['payperiods'] . ")</td></tr>";
+                                }
+                              }
+                          } else {
+                              echo "<tr><td colspan='6'>NO SELECTED PAYROLL PERIOD</td></tr>";
+                          }
+                        ?>
+                    </div>
               </div>
-          </div>
-      </div>
-  </div>
-</div>
+        </div>
 <?php
 
 function filterTable($searchquery)
@@ -635,6 +646,31 @@ unset($_SESSION['changepassnotif']);
 
     color: #000000 !important;
   }
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+}
+.header-item {
+    flex: 1;
+    text-align: center;
+}
+.header-text {
+    font-size: 16px;
+}
+.col{
+    flex: 1;
+    text-align: center;
+    justify-content: space-between;
+}
+@media (max-width: 768px) {
+    .col{
+     font-size: 12px; 
+    }
+    .header-text {
+        font-size: 10px; 
+    }
+}
 </style>
   </body>
 </html>
