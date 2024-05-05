@@ -206,16 +206,14 @@ if(isset($_POST['submit_btn'])){
   mysqli_query($conn, $insertNotificationQuery);
 
   if ($showSweetAlert) {
-
     if ($otremark == 'Approved' || $otremark == 'Allowed'){
       $icon = 'success';
     }else if ($otremark == 'Rejected'){
-      $icon = 'error';
+      $icon = 'success';
     }
     else if ($otremark == "Pending"){
       $icon = 'info';
     }
-
 ?>
    <script>
    document.addEventListener('DOMContentLoaded', function() {
