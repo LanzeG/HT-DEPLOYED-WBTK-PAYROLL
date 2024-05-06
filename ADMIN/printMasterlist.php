@@ -60,6 +60,13 @@ if (isset($_GET['printAll'])) {
 function printDataAsPDF($result, $urlhehe,$adminFullName) {
     $pdf = new FPDF('L', 'mm', 'A4');
     $pdf->AddPage();
+    $pdf->Image('../img/images.png',10,6,15); // Adjust the image path and position as needed
+    $pdf->SetFont('times','B',15);
+    $pdf->Cell(80);
+    $pdf->Cell(30,10,'WEB-BASED TIMEKEEPING PAYROLL SYSTEM MASTERLIST',0,0,'C');
+      
+    
+
     
     $pdf->SetFont('times', 'B', 30);
     $pdf->SetTextColor(220, 220, 220); // Set a light gray color
@@ -86,14 +93,14 @@ function printDataAsPDF($result, $urlhehe,$adminFullName) {
 
     // $pdf->Image($qrCodeFile, 10, 10, 30, 30, 'png');
     // $pdf->SetY(50);
-    $pdf->SetFont('times','B',14);
+    $pdf->SetFont('times','B',12);
     
     //Spacer
     $pdf->Cell(189,10,'',0,1);//end of line
     
     //Cell (width,height,text,border,end line, [align])
  
-    $pdf->Cell(70,10,'MASTERLIST',0,1);//end
+    $pdf->Cell(70,10,'',0,1);//end
     // Header
     // Header
     $pdf->SetFont('times', 'B', 11);
@@ -106,7 +113,18 @@ function printDataAsPDF($result, $urlhehe,$adminFullName) {
     $pdf->Cell(32, 10, 'Department', 1);
     $pdf->Cell(30, 10, 'Emp Type', 1);
     $pdf->Cell(30, 10, 'Contact #', 1);
-    $pdf->Cell(30, 10, 'Date Hired', 1);
+    $pdf->Cell(30, 10, 'Date Hired', 1, 1);
+    $pdf->SetFillColor(51, 255, 175); 
+    $pdf->Cell(30, 1, '', 1, 0, '', true);
+    $pdf->Cell(30, 1, '', 1, 0, '', true);
+    $pdf->Cell(32, 1, '', 1, 0, '', true);
+    $pdf->Cell(35, 1, '', 1, 0, '', true);
+    $pdf->Cell(30, 1, '', 1, 0, '', true);
+    $pdf->Cell(32, 1, '', 1, 0, '', true);
+    $pdf->Cell(30, 1, '', 1, 0, '', true);
+    $pdf->Cell(30, 1, '', 1, 0, '', true);
+    $pdf->Cell(30, 1, '', 1, 0, '', true);
+
     // Add more columns as needed
 
     // Data
@@ -116,17 +134,17 @@ function printDataAsPDF($result, $urlhehe,$adminFullName) {
         while ($row = mysqli_fetch_assoc($result)) {
             $pdf->SetFont('times', 'B', 10);
             $pdf->Ln();
-            $pdf->Cell(30, 10, $row['emp_id'], 1);
+            $pdf->Cell(30, 8, $row['emp_id'], 1);
             $pdf->SetFont('times', '', 10);
             // $pdf->Cell(25, 10, $row['fingerprint_id'], 1);
-            $pdf->Cell(30, 10, $row['last_name'], 1);
-            $pdf->Cell(32, 10, $row['first_name'], 1);
-            $pdf->Cell(35, 10, $row['middle_name'], 1);
-            $pdf->Cell(30, 10, $row['user_name'], 1);
-            $pdf->Cell(32, 10, $row['dept_NAME'], 1);
-            $pdf->Cell(30, 10, $row['contact_number'], 1);
-            $pdf->Cell(30, 10, $row['date_hired'], 1);
-            $pdf->Cell(30, 10, $row['emp_id'], 1);
+            $pdf->Cell(30, 8, $row['last_name'], 1);
+            $pdf->Cell(32, 8, $row['first_name'], 1);
+            $pdf->Cell(35, 8, $row['middle_name'], 1);
+            $pdf->Cell(30, 8, $row['user_name'], 1);
+            $pdf->Cell(32, 8, $row['dept_NAME'], 1);
+            $pdf->Cell(30, 8, $row['employment_TYPE'], 1);
+            $pdf->Cell(30, 8, $row['contact_number'], 1);
+            $pdf->Cell(30, 8, $row['date_hired'], 1,1);
          // Add more cells for additional columns
         }
     } else {
@@ -134,8 +152,8 @@ function printDataAsPDF($result, $urlhehe,$adminFullName) {
     }
 
     $pdf->Ln();
-    $pdf->Cell(30, 10, 'Printed by:', 1);
-    $pdf->Cell(62, 10, $adminFullName, 1, 1);
+    $pdf->Cell(18, 10, 'Printed by:', 0);
+    $pdf->Cell(62, 10, $adminFullName, 0, 1);
 
     // Output the PDF
     ob_start();  // Start output buffering
