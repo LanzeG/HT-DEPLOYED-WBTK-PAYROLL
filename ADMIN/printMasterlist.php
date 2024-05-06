@@ -144,7 +144,7 @@ function printDataAsPDF($result, $urlhehe,$adminFullName) {
             $pdf->Cell(32, 8, $row['dept_NAME'], 1);
             $pdf->Cell(30, 8, $row['employment_TYPE'], 1);
             $pdf->Cell(30, 8, $row['contact_number'], 1);
-            $pdf->Cell(30, 8, $row['date_hired'], 1,1);
+            $pdf->Cell(30, 8, $row['date_hired'], 1,0);
          // Add more cells for additional columns
         }
     } else {
