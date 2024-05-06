@@ -39,14 +39,14 @@ $formattedDateRange = "$startMonth $startDay-$endDay, $year";
 $d = strtotime("now");
 $currtime = date ("Y-m-d H:i:s", $d);
 if (isset($_GET['print_all'])) {
-	$payslipdetailsqry = "SELECT * from employees, payrollinfo, PAY_PER_PERIOD WHERE PAY_PER_PERIOD.pperiod_range = '$payperiod' and PAY_PER_PERIOD.emp_id = employees.emp_id and payrollinfo.emp_id = employees.emp_id ORDER BY PAY_PER_PERIOD.emp_id ASC";
+	$payslipdetailsqry = "SELECT * from employees, payrollinfo, pay_per_period WHERE pay_per_period.pperiod_range = '$payperiod' and pay_per_period.emp_id = employees.emp_id and payrollinfo.emp_id = employees.emp_id ORDER BY pay_per_period.emp_id ASC";
 } elseif (isset($_GET['print_displayed'])) {
 	$payslipdetailsqry =$_SESSION['printpayrollquery'];
 	echo $payslipdetailsqry;
 	// echo '<pre>', print_r($payslipdetailsqry, true), '</pre>';
 }
 else{
-	$payslipdetailsqry = "SELECT * from employees, payrollinfo, PAY_PER_PERIOD WHERE PAY_PER_PERIOD.pperiod_range = '$payperiod' and PAY_PER_PERIOD.emp_id = employees.emp_id and payrollinfo.emp_id = employees.emp_id AND employees.emp_id ='$printid'";
+	$payslipdetailsqry = "SELECT * from employees, payrollinfo, pay_per_period WHERE pay_per_period.pperiod_range = '$payperiod' and pay_per_period.emp_id = employees.emp_id and payrollinfo.emp_id = employees.emp_id AND employees.emp_id ='$printid'";
 }
 $payslipdetailsexecqry = mysqli_query($conn, $payslipdetailsqry) or die("FAILED TO GET PAYROLL DETAILS " . mysqli_error($conn));
 
@@ -186,7 +186,7 @@ if($thirteentharray){
 }
 
 
-$payinfoqry = "SELECT * FROM PAYROLLINFO WHERE emp_id = '$idno'";
+$payinfoqry = "SELECT * FROM payrollinfo WHERE emp_id = '$idno'";
 $payinfoexecqry = mysqli_query($conn,$payinfoqry) or die ("FAILED TO GET PAYROLL INFO");
 $piarray = mysqli_fetch_array($payinfoexecqry);
 if($piarray){
@@ -200,7 +200,7 @@ if($piarray){
 	$semimonthlyrate = 0;
 	$smrate = 0.00;
 }
-$payinfo1qry = "SELECT * FROM pay_per_period WHERE emp_id = '$idno' AND PAY_PER_PERIOD.pperiod_range = '$payperiod'";
+$payinfo1qry = "SELECT * FROM pay_per_period WHERE emp_id = '$idno' AND pay_per_period.pperiod_range = '$payperiod'";
 $payinfo1execqry = mysqli_query($conn,$payinfo1qry) or die ("FAILED TO GET PAYROLL INFO");
 $piarray1 = mysqli_fetch_array($payinfo1execqry);
 if($piarray1){
