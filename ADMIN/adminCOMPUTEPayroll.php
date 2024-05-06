@@ -78,7 +78,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 		$searchexecquery1 = mysqli_query($conn,$searchquery1) or die ("FAILED TO SEARCH ".mysqli_error($conn));
 		$searchrows1 = mysqli_num_rows($searchexecquery1);
 
-		if ($searchrows1>1){
+		if ($searchrows1>=1){
 		//check if processed already
 		$searchquery = "SELECT * FROM pay_per_period WHERE emp_id = '$payID' AND pperiod_range = '$payperiodrange'";
 		$searchexecquery = mysqli_query($conn,$searchquery) or die ("FAILED TO SEARCH ".mysqli_error($conn));
@@ -101,7 +101,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 		<?php									
 			} else {
 				//get undertimes
-				$timekeepinfoquery = "SELECT SUM(hours_work) as hourswork, SUM(undertime_hours) as undertimehours FROM time_keeping WHERE emp_id = '$payID' AND timekeep_day BETWEEN '" . $lastMonth16->format('Y-m-d') . "' AND '" . $currentMonth15->format('Y-m-d') . "' ORDER BY timekeep_day ASC";
+				$timekeepinfoquery = "SELECT SUM(hours_work) as hourswork, SUM(undertime_hours) as undertimehours FROM TIME_KEEPING WHERE emp_id = '$payID' AND timekeep_day BETWEEN '" . $lastMonth16->format('Y-m-d') . "' AND '" . $currentMonth15->format('Y-m-d') . "' ORDER BY timekeep_day ASC";
 				$timekeepinfoexecquery = mysqli_query($conn,$timekeepinfoquery) or die ("FAILED TO GET TIMEKEEPINFO ". mysqli_error($conn));
 				$timekeepinfoarray = mysqli_fetch_array($timekeepinfoexecquery);
 
@@ -121,7 +121,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 						$absencesCount = $absencesfoarray[0];
 								
 						//get payroll infro
-						$payinfoquery = "SELECT * FROM payrollinfo WHERE emp_id = '$payID'";
+						$payinfoquery = "SELECT * FROM PAYROLLINFO WHERE emp_id = '$payID'";
 						$payinfoexecquery = mysqli_query($conn,$payinfoquery) or die ("FAILED TO GET PAY INFO ".mysqli_error($conn));
 						$payinfoarray = mysqli_fetch_array($payinfoexecquery);
 
@@ -170,13 +170,19 @@ $dayOfMonth = date('d', strtotime($currentDate));
 										}else{
 											$loan_status = 'On-Going';
 										}
+
+										if($basepay<$loanAmount){
+											$remarks ="Disallowanced";
+										}else{
+											$remarks ="";
+										}
 											
 										$totalloan = $totalloan + $monthly_deduct;
 										$updateQuery = "UPDATE loans SET loan_balance =$loan_balance, no_of_pays = $noofpays, status = '$loan_status' WHERE uniquekey = '$uniquekey'";
 										mysqli_query($conn, $updateQuery) or  die("FAILED TO UPDATE LOAN: " . mysqli_error($conn));
 
-										$loanhistory="INSERT INTO loan_history (uniquekey, loan_id, loantype, loanorg, emp_id, lastname, firstname, middlename, amount, start_date, end_date, monthly_payment, status, num_of_payments, current_amount, payperiod, admin_name) VALUES
-										('$uniquekey','$loanID','$loantype','$loanorg','$payID','$lname','$fname','$mname','$loanAmount','$startdate','$enddate','$monthly_deduct', '$loan_status','$noofpays', '$loan_balance','$payperiodrange','$adminFullName')";
+										$loanhistory="INSERT INTO loan_history (uniquekey, loan_id, loantype, loanorg, emp_id, lastname, firstname, middlename, amount, start_date, end_date, monthly_payment, status, num_of_payments, current_amount, payperiod, admin_name, remarks) VALUES
+										('$uniquekey','$loanID','$loantype','$loanorg','$payID','$lname','$fname','$mname','$loanAmount','$startdate','$enddate','$monthly_deduct', '$loan_status','$noofpays', '$loan_balance','$payperiodrange','$adminFullName','$remarks')";
 										$loanhistoryresult = mysqli_query($conn, $loanhistory) or die (" ".mysqli_error($conn));
 										}
 									} else {
@@ -198,23 +204,23 @@ $dayOfMonth = date('d', strtotime($currentDate));
 									$totaldeduct = $totalut + $totalabsences + $gsis + $ph + $pagibig + $totalloan + $disallowance;
 									$totalnet = $basepay - $totaldeduct + $refsalary;
 									
-								$firsthalf = floor(($totalnet/2) / 1000) * 1000;
-								$secondhalf = $totalnet - $firsthalf;
+									$firsthalf = floor(($totalnet/2) / 1000) * 1000;
+									$secondhalf = $totalnet - $firsthalf;
 
-								$adddisallowance = "UPDATE payrollinfo SET disallowance = disallowance + $disallowance1, current_disallowance = 0 WHERE emp_id = $payID";
-								$adddisallowancequery = mysqli_query($conn,$adddisallowance) or die ("FAILED TO INSERT PAYROLL INFO ".mysqli_error($conn));
+									$adddisallowance = "UPDATE payrollinfo SET disallowance = disallowance + $disallowance1, current_disallowance = 0 WHERE emp_id = $payID";
+									$adddisallowancequery = mysqli_query($conn,$adddisallowance) or die ("FAILED TO INSERT PAYROLL INFO ".mysqli_error($conn));
 
-								$savepayrollquery = "INSERT INTO pay_per_period (emp_id,pperiod_range,pperiod_month,pperiod_year,rate_per_hour, reg_pay, refsalary, undertimehours, absences,net_pay,philhealth_deduct, sss_deduct, pagibig_deduct, tax_deduct, total_deduct, loan_deduct, disallowance, firsthalf,secondhalf) VALUES 
-																				('$payID','$payperiodrange','$month1','$year','$rph','$basepay','$refsalary', '$totalut', '$totalabsences', '$totalnet', '$ph','$gsis','$pagibig','$wtax', $totaldeduct, $totalloan,$disallowance, $firsthalf,$secondhalf)";
-								$savepayrollexecquery = mysqli_query($conn,$savepayrollquery) or die ("FAILED TO INSERT PAYROLL INFO ".mysqli_error($conn));
+									$savepayrollquery = "INSERT INTO pay_per_period (emp_id,pperiod_range,pperiod_month,pperiod_year,rate_per_hour, reg_pay, refsalary, undertimehours, absences,net_pay,philhealth_deduct, sss_deduct, pagibig_deduct, tax_deduct, total_deduct, loan_deduct, disallowance, firsthalf,secondhalf) VALUES 
+																					('$payID','$payperiodrange','$month1','$year','$rph','$basepay','$refsalary', '$totalut', '$totalabsences', '$totalnet', '$ph','$gsis','$pagibig','$wtax', $totaldeduct, $totalloan,$disallowance, $firsthalf,$secondhalf)";
+									$savepayrollexecquery = mysqli_query($conn,$savepayrollquery) or die ("FAILED TO INSERT PAYROLL INFO ".mysqli_error($conn));
 
-								$activityLog = "Payroll Computed for $fname $lname ($payperiodrange)";
-								$adminActivityQuery = "INSERT INTO adminactivity_log (emp_id, adminname, activity,log_timestamp) VALUES ('$adminId','$adminFullName', '$activityLog', NOW())";
-								$adminActivityResult = mysqli_query($conn, $adminActivityQuery);
+									$activityLog = "Payroll Computed for $fname $lname ($payperiodrange)";
+									$adminActivityQuery = "INSERT INTO adminactivity_log (emp_id, adminname, activity,log_timestamp) VALUES ('$adminId','$adminFullName', '$activityLog', NOW())";
+									$adminActivityResult = mysqli_query($conn, $adminActivityQuery);
 
-								$notificationMessage = "Payroll Computed for $fname $lname ($payperiodrange)";
-								$insertNotificationQuery = "INSERT INTO empnotifications (admin_id,adminname, emp_id, message, type, status) VALUES ('$adminId','$adminFullName', '$payID','$notificationMessage','Payroll','unread')";
-								mysqli_query($conn, $insertNotificationQuery);
+									$notificationMessage = "Payroll Computed for $fname $lname ($payperiodrange)";
+									$insertNotificationQuery = "INSERT INTO empnotifications (admin_id,adminname, emp_id, message, type, status) VALUES ('$adminId','$adminFullName', '$payID','$notificationMessage','Payroll','unread')";
+									mysqli_query($conn, $insertNotificationQuery);
 
 								if ($savepayrollexecquery){
 									 ?>
@@ -239,7 +245,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 							
 							}
 		}else{
-			$timekeepinfoquery = "SELECT SUM(hours_work) as hourswork, SUM(undertime_hours) as undertimehours FROM time_keeping WHERE emp_id = '$payID' AND timekeep_day BETWEEN '$payperiodfrom ' AND '$payperiodto ' ORDER BY timekeep_day ASC";
+			$timekeepinfoquery = "SELECT SUM(hours_work) as hourswork, SUM(undertime_hours) as undertimehours FROM TIME_KEEPING WHERE emp_id = '$payID' AND timekeep_day BETWEEN '$payperiodfrom ' AND '$payperiodto ' ORDER BY timekeep_day ASC";
 			$timekeepinfoexecquery = mysqli_query($conn,$timekeepinfoquery) or die ("FAILED TO GET TIMEKEEPINFO ". mysqli_error($conn));
 			$timekeepinfoarray = mysqli_fetch_array($timekeepinfoexecquery);
 
@@ -259,7 +265,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 
 				/** GET HOURLY RATE INFORMATION **/
 
-				$payinfoquery = "SELECT * FROM payrollinfo WHERE emp_id = '$payID'";
+				$payinfoquery = "SELECT * FROM PAYROLLINFO WHERE emp_id = '$payID'";
 				$payinfoexecquery = mysqli_query($conn,$payinfoquery) or die ("FAILED TO GET PAY INFO ".mysqli_error($conn));
 				$payinfoarray = mysqli_fetch_array($payinfoexecquery);
 
@@ -336,7 +342,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 		}
 
 } else if ($emptype == 'Part Time'){
-	$timekeepinfoquery = "SELECT SUM(hours_work) as hourswork, SUM(undertime_hours) as undertimehours FROM time_keeping WHERE emp_id = '$payID' AND timekeep_day BETWEEN '" . $lastMonth16->format('Y-m-d') . "' AND '" . $currentMonth15->format('Y-m-d') . "' ORDER BY timekeep_day ASC";
+	$timekeepinfoquery = "SELECT SUM(hours_work) as hourswork, SUM(undertime_hours) as undertimehours FROM TIME_KEEPING WHERE emp_id = '$payID' AND timekeep_day BETWEEN '" . $lastMonth16->format('Y-m-d') . "' AND '" . $currentMonth15->format('Y-m-d') . "' ORDER BY timekeep_day ASC";
 	$timekeepinfoexecquery = mysqli_query($conn,$timekeepinfoquery) or die ("FAILED TO GET TIMEKEEPINFO ". mysqli_error($conn));
 	$timekeepinfoarray = mysqli_fetch_array($timekeepinfoexecquery);
 
@@ -356,7 +362,7 @@ $dayOfMonth = date('d', strtotime($currentDate));
 
 			/** GET HOURLY RATE INFORMATION **/
 
-			$payinfoquery = "SELECT * FROM payrollinfo WHERE emp_id = '$payID'";
+			$payinfoquery = "SELECT * FROM PAYROLLINFO WHERE emp_id = '$payID'";
 			$payinfoexecquery = mysqli_query($conn,$payinfoquery) or die ("FAILED TO GET PAY INFO ".mysqli_error($conn));
 			$payinfoarray = mysqli_fetch_array($payinfoexecquery);
 
