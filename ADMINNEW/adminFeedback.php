@@ -57,7 +57,7 @@ $conn->close();
                 <div class="card-header">
                     Announcement
                 </div>
-                <form class="row g-3 p-3" method="post" action="delete_notification.php">
+                <form class="row g-3 p-3" method="post" action="">
                     <div class="col-12">
                         <label for="announcementTitle" class="form-label">Announcement Title</label>
                         <?php $row = $result->fetch_assoc();?>
@@ -121,6 +121,12 @@ $conn->close();
 
         $deleteQuery = "DELETE FROM notifications WHERE notification_id = '$notif'";
         $deleteResult = mysqli_query($conn, $deleteQuery);
+
+        $notifquery ="INSERT INTO empnotifications (admin_id,adminname, emp_id, message, status) VALUES ('$adminId','$adminFullName', '{$row['emp_id']}','Issue Resolved - {$row['title']}','unread')";
+        $notifqueryResult = mysqli_query($conn, $notifquery);
+        
+
+
 
         if ($deleteResult) {
             $activityLog = "Deleted notification (notification_id: $notif)";
