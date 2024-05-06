@@ -435,7 +435,7 @@ if (isset($_GET['refresh'])) {
 
 <?php
 function filterTable($searchquery){
-  $conn1 = mysqli_connect("localhost:3307","root","","masterdb");
+  $conn1 = mysqli_connect("localhost","u387373332_masterdb","WBTKpayrollportal1234@","u387373332_masterdb");
   $filter_Result = mysqli_query($conn1,$searchquery) or die ("failed to query employees ".mysqli_error($conn1));
   return $filter_Result;
 }
