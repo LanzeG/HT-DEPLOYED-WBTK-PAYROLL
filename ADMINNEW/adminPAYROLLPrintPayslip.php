@@ -107,7 +107,7 @@ if (isset($_GET['print_btn'])){
         $_SESSION['payperioddayss'] = $pperiodarray['payperiod_days'];
       }
        
-      $searchquery .= " AND PAY_PER_PERIOD.emp_id = employees.emp_id AND PAY_PER_PERIOD.pperiod_range = '$_SESSION[payperiodrange]'";
+      $searchquery .= " AND pay_per_period.emp_id = employees.emp_id AND pay_per_period.pperiod_range = '$_SESSION[payperiodrange]'";
       $searchquery .= " GROUP BY employees.emp_id ORDER BY $sortColumn $sortOrder";
       
       $search_result = filterTable($searchquery);
@@ -172,7 +172,7 @@ if (isset($_GET['refresh'])) {
 <body>
 <!--Header-part-->
 <?php
-  include('navbaradmin.php');
+  include('navbarAdmin.php');
 ?>
 
 <style>
@@ -407,7 +407,7 @@ if (isset($_GET['refresh'])) {
   <div class="  form-actions mt-3" >
     <button type="submit" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out printbtn" name="print_btn">Apply</button>
     <button type="submit" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out mr-1" name="refresh">Refresh</button>
-    <a href="../admin/NEWPAYSLIP.php?print_all" class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md border border-blue-500 hover:border-blue-600 transition duration-300 ease-in-out" target="_blank"><i class="fas fa-print mr-2"></i> Print All</a>              
+    <a href="../ADMIN/NEWPAYSLIP.php?print_all" class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md border border-blue-500 hover:border-blue-600 transition duration-300 ease-in-out" target="_blank"><i class="fas fa-print mr-2"></i> Print All</a>              
   </div>
 </form>
 </div>
@@ -448,7 +448,7 @@ function filterTable($searchquery){
       <td><?php echo $row1['middle_name']; ?></td>   
       <td><?php echo $row1['dept_NAME']; ?></td>                  
       <td><?php echo $row1['employment_TYPE']; ?></td>                  
-      <td><center><a href="../admin/NEWPAYSLIP.php?id=<?php echo $row1['emp_id']; ?>" class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md border border-blue-500 hover:border-blue-600 transition duration-300 ease-in-out" target="_blank">
+      <td><center><a href="../ADMIN/NEWPAYSLIP.php?id=<?php echo $row1['emp_id']; ?>" class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md border border-blue-500 hover:border-blue-600 transition duration-300 ease-in-out" target="_blank">
     <span class="icon"><i class="fas fa-print"></i></span> Print
     </a>
 </tr>
@@ -482,16 +482,16 @@ function filterTable($searchquery){
     <div id="footer" class="span12"> 2023 &copy; WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT BIOMETRICS</div>
 </div>
 
-<script src="../js/maruti.dashboard.js"></script>
-<script src="../js/excanvas.min.js"></script>
-<script src="../js/jquery.min.js"></script>
-<script src="../js/jquery.ui.custom.js"></script>
-<script src="../js/bootstrap.min.js"></script>
-<script src="../js/jquery.flot.min.js"></script>
-<script src="../js/jquery.flot.resize.min.js"></script>
-<script src="../js/jquery.peity.min.js"></script>
-<script src="../js/fullcalendar.min.js"></script>
-<script src="../js/maruti.js"></script>
+<!--<script src="../js/maruti.dashboard.js"></script>-->
+<!--<script src="../js/excanvas.min.js"></script>-->
+<!--<script src="../js/jquery.min.js"></script>-->
+<!--<script src="../js/jquery.ui.custom.js"></script>-->
+<!--<script src="../js/bootstrap.min.js"></script>-->
+<!--<script src="../js/jquery.flot.min.js"></script>-->
+<!--<script src="../js/jquery.flot.resize.min.js"></script>-->
+<!--<script src="../js/jquery.peity.min.js"></script>-->
+<!--<script src="../js/fullcalendar.min.js"></script>-->
+<!--<script src="../js/maruti.js"></script>-->
 <script>
     // Function to update the position dropdown state
   function updatePositionDropdownState() {
