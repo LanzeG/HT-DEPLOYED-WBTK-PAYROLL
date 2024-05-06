@@ -400,7 +400,7 @@ if ($flag>0){
 				con: "success",
 				button: "OK",
 			}).then(function() {
-				window.location.href = '../adminnew/adminPAYROLLProcess.php'; // Replace 'your_new_page.php' with the actual URL
+				window.location.href = '../ADMINNEW/adminPAYROLLProcess.php'; // Replace 'your_new_page.php' with the actual URL
 				window.close()
 			});
 		});
