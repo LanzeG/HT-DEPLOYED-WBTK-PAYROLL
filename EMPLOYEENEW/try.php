@@ -181,7 +181,7 @@ if ($printarray){
 <body>
 <div class="content">
 <div class="d-flex justify-content-center text-center">
-  <div class="title flex-column align-content-center  justify-content-center pt-2">
+  <div class="title flex-column align-content-center  justify-content-center pt-5">
     <div class="col">
       <h4>
         EMPLOYEE DASHBOARD
@@ -241,7 +241,7 @@ if ($printarray){
                         </div>
                         <div class="card1 text-bg-info col-md-4 col-sm-12 background-small-left-1">
                             <div class="h-100">
-                                <div class="title mt-2">TOTAL UNDERTIME(MINS)</div>
+                                <div class="title mt-2">TOTAL UNDERTIME</div>
                                 <div class="card-body text-center" style="color:#4929aa;">
                                     <h3><span id="totalUndertime"><?php echo isset($rowattquery['TOTAL_UNDERTIME_HOURS']) ? $rowattquery['TOTAL_UNDERTIME_HOURS'] : 0; ?></span></h3>
                                 </div>
@@ -272,10 +272,10 @@ if ($printarray){
     <div class="row mt-1 pb-2">
         <div class="col-6">
           <select class="form-select form-select-sm" id="sel" aria-label="Small select example" name="payfunction">
-              <option value="Generate Payslip" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'Generate Payslip') ? 'selected' : ''; ?>>Generate Payslip</option>
-              <option value="View DTR" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View DTR') ? 'selected' : ''; ?>>View DTR</option>
+              <option value="Generate Payslip" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'Generate Payslip') ? 'selected' : ''; ?>>PRINT PAYSLIP</option>
+              <option value="View DTR" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View DTR') ? 'selected' : ''; ?>>PRINT DTR</option>
               <!-- <option value="View Timesheet" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View Timesheet') ? 'selected' : ''; ?>>View Timesheet</option> -->
-              <option value="View Leaves" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View Leaves') ? 'selected' : ''; ?>>View Leaves</option>
+              <option value="View Leaves" <?php echo (isset($_SESSION['payfunction']) && $_SESSION['payfunction'] == 'View Leaves') ? 'selected' : ''; ?>>PRINT LEAVE RECORD</option>
            </select>
           
         </div>
@@ -298,19 +298,20 @@ if ($printarray){
                 <?php } ?>
             </select>
       </div>
-      <div class="button d-flex justify-content-center align-items-center pt-2">
-    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-green-500 hover:bg-blue-green-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center" name="pperiod_btn1">
+    <div class="button d-flex justify-content-center align-items-center pt-2">
+    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-green-500 hover:bg-blue-green-600 text-white font-bold py-2 px-2 rounded-full inline-flex items-center" name="pperiod_btn1" style="width: 100px;">
         Generate
     </button>
     <div class="uinfotab3">
-        <a href="try.php" class="btn btn-success btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center" style="margin: 0 2px;">
+        <a href="try.php" class="btn btn-success btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-2 rounded-full inline-flex items-center" style="width: 100px; margin: 0 2px;">
             <span class="icon"><i class="icon-refresh"></i></span> Refresh
         </a>
     </div>
-    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center" name="pperiod_btn" style="margin-left: 2px;">
+    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center" name="pperiod_btn" style="width: 100px; margin-left: 2px;">
         Select
     </button>
 </div>
+
 
 </div>
 </div>
@@ -329,23 +330,67 @@ if ($printarray){
 
 <?php
 
-$attendanceQuery = "
-SELECT
-    MONTH(dtr.dtr_day) AS month,
-    COUNT(*) AS attendance_count,
-    (SELECT COUNT(*) FROM absences WHERE emp_id = dtr.emp_id AND MONTH(absence_date) = MONTH(dtr.dtr_day)) AS absence_count
-FROM
-    dtr
-INNER JOIN
-    time_keeping ON time_keeping.emp_id = dtr.emp_id AND time_keeping.timekeep_day = dtr.dtr_day
-WHERE
-    dtr.emp_id = '$empid'
-    AND dtr.dtr_day BETWEEN '$period_start' AND '$period_end'
-GROUP BY
-    MONTH(dtr.dtr_day)
-ORDER BY
-    MONTH(dtr.DTR_day) ASC
+// Query to fetch the earliest recorded month for the employee
+$earliestMonthQuery = "
+    SELECT
+        MIN(dtr.dtr_day) AS earliest_month
+    FROM
+        dtr
+    WHERE
+        dtr.emp_id = '$empid'
 ";
+
+$earliestMonthResult = mysqli_query($conn, $earliestMonthQuery) or die(mysqli_error($conn));
+$earliestMonthRow = mysqli_fetch_assoc($earliestMonthResult);
+$earliestMonth = $earliestMonthRow['earliest_month'];
+
+// If the earliest month is null, set it to the beginning of the current year
+if (!$earliestMonth) {
+    $earliestMonth = date('Y-01-01');
+}
+
+// Check if payroll period is selected
+if (!isset($period_start) || !isset($period_end)) {
+    // If no period is selected, fetch data for all months since the earliest recorded month
+    $attendanceQuery = "
+        SELECT
+            YEAR(dtr.dtr_day) AS year,
+            MONTH(dtr.dtr_day) AS month,
+            COUNT(*) AS attendance_count,
+            (SELECT COUNT(*) FROM absences WHERE emp_id = dtr.emp_id AND MONTH(absence_date) = MONTH(dtr.dtr_day)) AS absence_count
+        FROM
+            dtr
+        INNER JOIN
+            time_keeping ON time_keeping.emp_id = dtr.emp_id AND time_keeping.timekeep_day = dtr.dtr_day
+        WHERE
+            dtr.emp_id = '$empid'
+            AND dtr.dtr_day >= '$earliestMonth'
+        GROUP BY
+            YEAR(dtr.dtr_day), MONTH(dtr.dtr_day)
+        ORDER BY
+            YEAR(dtr.dtr_day) ASC, MONTH(dtr.dtr_day) ASC
+    ";
+} else {
+    // If period is selected, fetch data based on selected period
+    $attendanceQuery = "
+        SELECT
+            YEAR(dtr.dtr_day) AS year,
+            MONTH(dtr.dtr_day) AS month,
+            COUNT(*) AS attendance_count,
+            (SELECT COUNT(*) FROM absences WHERE emp_id = dtr.emp_id AND MONTH(absence_date) = MONTH(dtr.dtr_day)) AS absence_count
+        FROM
+            dtr
+        INNER JOIN
+            time_keeping ON time_keeping.emp_id = dtr.emp_id AND time_keeping.timekeep_day = dtr.dtr_day
+        WHERE
+            dtr.emp_id = '$empid'
+            AND dtr.dtr_day BETWEEN '$period_start' AND '$period_end'
+        GROUP BY
+            YEAR(dtr.dtr_day), MONTH(dtr.dtr_day)
+        ORDER BY
+            YEAR(dtr.dtr_day) ASC, MONTH(dtr.dtr_day) ASC
+    ";
+}
 
 $attendanceResult = mysqli_query($conn, $attendanceQuery) or die(mysqli_error($conn));
 
@@ -353,23 +398,26 @@ $months = [];
 $attendanceData = [];
 $absenceData = [];
 
-// QUERY NG LINE GRAPH
+// Query for all months since the employee was added to the system
 while ($row = mysqli_fetch_assoc($attendanceResult)) {
-$months[] = date("M", mktime(0, 0, 0, intval($row['month']), 1));
-$attendanceData[] = intval($row['attendance_count']);
-$absenceData[] = intval($row['absence_count']);
+    $months[] = date("M Y", mktime(0, 0, 0, intval($row['month']), 1, intval($row['year'])));
+    $attendanceData[] = intval($row['attendance_count']);
+    $absenceData[] = intval($row['absence_count']);
 }
 
-for ($i = 1; $i <= 12; $i++) {
-if (!in_array(date("M", mktime(0, 0, 0, $i, 1)), $months)) {
-    $months[] = date("M", mktime(0, 0, 0, $i, 1));
+// Generate labels for all months between the earliest recorded month and the current month
+$startDate = new DateTime($earliestMonth);
+$currentDate = new DateTime();
+$interval = new DateInterval('P1M');
+$dateRange = new DatePeriod($startDate, $interval, $currentDate);
+
+foreach ($dateRange as $date) {
+    $months[] = $date->format('M Y');
     $attendanceData[] = 0;
     $absenceData[] = 0;
 }
 
-}
-
-// ITO YUNG DATA BY MONTH
+// Ensure data is sorted by month
 array_multisort(array_map('strtotime', $months), SORT_ASC, $months, $attendanceData, $absenceData);
 ?>
 
@@ -408,10 +456,12 @@ var lineChart = new Chart(ctx, {
 });
 </script>
 
+
+
           <!-- New Card Section -->
 <div class="col-lg-4 col-md-6" style="margin-top: 20px;">
-    <div class="shadow">
-            <div style="max-height: 450px; overflow-y: auto; overflow-x: hidden;">
+    <div class="card shadow" style="border-radius: 10px; height: 440px;">
+            <div style="max-height: 450px; overflow-y: auto; overflow-x: hidden; border-radius: 10px;">
                 <div class="row" style="position: sticky; top: 0; background-color: white; z-index: 1;">
                     <div class="col">
                         <div class="card mb-0" style="border-top-left-radius: 10px; border-top-right-radius: 10px;  background-color: #2ff29e; color: #4929aa;">
@@ -455,7 +505,7 @@ var lineChart = new Chart(ctx, {
                                                 <div class="col"><?php echo $payperiodarray['in_morning']; ?></div>
                                                 <div class="col"><?php echo $payperiodarray['out_afternoon']; ?></div>
                                                 <div class="col"><?php echo $hrswrk; ?></div>
-                                                <div class="col"><?php echo $payperiodarray['DTR_remarks']; ?></div>
+                                                <div class="col" style="font-size: 11px;"><?php echo $payperiodarray['DTR_remarks']; ?></div>
                                             </div>
                                         </div>
                                     </div>
@@ -467,15 +517,47 @@ var lineChart = new Chart(ctx, {
                                 $dateRange = $_SESSION['payperiods'];
                                 $dateParts = explode(' to ', $dateRange);
                                 if (count($dateParts) === 2) {
-                                    $startDate = date('F j, Y', strtotime($dateParts[0]));
-                                    $endDate = date('F j, Y', strtotime($dateParts[1]));
-                                    echo "<tr><td colspan='6'>NO DATA FOUND ON ($startDate to $endDate)</td></tr>";
+                                   $monthAbbreviations = [
+                                    'January' => 'Jan',
+                                    'February' => 'Feb',
+                                    'March' => 'Mar',
+                                    'April' => 'Apr',
+                                    'May' => 'May',
+                                    'June' => 'Jun',
+                                    'July' => 'Jul',
+                                    'August' => 'Aug',
+                                    'September' => 'Sep',
+                                    'October' => 'Oct',
+                                    'November' => 'Nov',
+                                    'December' => 'Dec'
+                                ];
+                                
+                                $startDate = date('F j, Y', strtotime($dateParts[0]));
+                                $startDateParts = explode(' ', $startDate);
+                                $startDateParts[0] = $monthAbbreviations[$startDateParts[0]];
+                                $startDate = implode(' ', $startDateParts);
+                                $startDate = strtoupper($startDate);
+                                
+                                $endDate = date('F j, Y', strtotime($dateParts[1]));
+                                $endDateParts = explode(' ', $endDate);
+                                $endDateParts[0] = $monthAbbreviations[$endDateParts[0]];
+                                $endDate = implode(' ', $endDateParts);
+                                $endDate = strtoupper($endDate);
+                                   echo "<tr><td colspan='6' style='text-align: center;'>
+                                    <img src='../img/carousel/chart3d.png' alt='' style='max-width: 40%; 
+                                    display: block; margin: 0 auto; margin-top: 7%;'><br><span style='display: block; 
+                                    width: fit-content; margin: 0 auto; padding-bottom: 13%; font-size: 90%;'> NO RECORD FOR <span style='color: red;'>$startDate</span> - <span style='color: red;'>$endDate</span></span></td></tr>";
+
                                 } else {
-                                    echo "<tr><td col='6'>NO DATA FOUND ON (" . $_SESSION['payperiods'] . ")</td></tr>";
+                                    echo "<tr><td col='6'>NO DATA FOUND ON " . $_SESSION['payperiods'] . "</td></tr>";
                                 }
                               }
                           } else {
-                              echo "<tr><td colspan='6'>NO SELECTED PAYROLL PERIOD</td></tr>";
+                             echo "<tr><td colspan='6' style='text-align: center;'>
+                             <img src='../img/carousel/shield3d.png' alt='' style='max-width: 30%; 
+                             display: block; margin: 0 auto; margin-top: 15%;'>
+                             <br><span style='display: block; width: fit-content; margin: 0 auto; padding-bottom: 15%; '>
+                             NO SELECTED PAYROLL PERIOD</span></td></tr>";
                           }
                         ?>
                     </div>
