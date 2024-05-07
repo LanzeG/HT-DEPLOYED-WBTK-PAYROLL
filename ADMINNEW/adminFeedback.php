@@ -99,8 +99,8 @@ $conn->close();
 
                 swal({
                     title: "Are you sure?",
-                    text: "Once deleted, you will not be able to recover this issue!",
-                    icon: "warning",
+                    text: "Once resolve, you will not be able to recover this issue!",
+                    icon: "info",
                     buttons: true,
                     dangerMode: true,
                 })
