@@ -120,10 +120,10 @@ if(isset($_POST['submit_btn'])){
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../../css/bootstrap-responsive.min.css" />
-    <link rel="stylesheet" href="../../css/fullcalendar.css" />
-    <link rel="stylesheet" href="../../css/maruti-style.css" />
-    <link rel="stylesheet" href="../../css/maruti-media.css" class="skin-color" />
+    <!--<link rel="stylesheet" href="../../css/bootstrap-responsive.min.css" />-->
+    <!--<link rel="stylesheet" href="../../css/fullcalendar.css" />-->
+    <!--<link rel="stylesheet" href="../../css/maruti-style.css" />-->
+    <!--<link rel="stylesheet" href="../../css/maruti-media.css" class="skin-color" />-->
     <link rel="stylesheet" href="../../jquery-ui-1.12.1/jquery-ui.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;700&display=swap">
     <script src="../../jquery-ui-1.12.1/jquery-3.2.1.js"></script>
