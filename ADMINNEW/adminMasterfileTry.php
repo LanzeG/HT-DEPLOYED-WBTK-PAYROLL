@@ -326,7 +326,7 @@ if (isset($_GET['print_btn'])) {
   <a href="../ADMIN/printMasterlist.php?printAll" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out" target="_blank"><i class="fas fa-print mr-2"></i> Print All Masterlist</a>  
   <a href="../ADMIN/printMasterlist.php?printDisplayed" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out" target="_blank"><i class="fas fa-print mr-2"></i> Print Displayed Masterlist</a>
   <a href="../ADMINNEW/adminADDprofile.php" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i> Add Profile</a>
-  <a href="../ADMIN/biometricattendance1/ManageUsers.php" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i> Add Fingerprint</a>
+<!--   <a href="../ADMIN/biometricattendance1/ManageUsers.php" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out"><i class="fas fa-plus mr-2"></i> Add Fingerprint</a> -->
   <a class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md border border-blue-500 hover:border-blue-600 transition duration-300 ease-in-out" id="collapseBtn" onclick="toggleCollapse()" style="float: right;">Filter Options <i class="fas fa-arrow-down ml-2"></i></a>
 
 </body>
