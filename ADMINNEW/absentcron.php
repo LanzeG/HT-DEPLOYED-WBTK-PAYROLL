@@ -1,7 +1,5 @@
 <?php
-include("../DBCONFIG.PHP");
-include("../LoginControl.php");
-include("../BASICLOGININFO.PHP");
+include("/home/u387373332/domains/wbtkpayrollportal.com/public_html/DBCONFIG.PHP");
 
 $timeconv = strtotime("NOW");
 $currtime = date("F d, Y", $timeconv);
@@ -50,4 +48,43 @@ while ($row = $result->fetch_assoc()) {
     }
 }
 
+$sql_select = "SELECT emp_id, timekeep_day
+               FROM time_keeping
+               WHERE out_afternoon == '00:00:00'";
+$result_select = $conn->query($sql_select);
+if ($result_select) {
+    // Use a loop to fetch each row
+    while ($row = $result_select->fetch_assoc()) {
+        // Store emp_id and timekeep_day in variables
+        $emp_id = $row['emp_id'];
+        $timekeep_day = $row['timekeep_day'];
+
+        // Insert emp_id and timekeep_day into absent table
+        $sql_insert = "INSERT INTO absences (emp_id, absence_date)
+                       VALUES ('$emp_id', '$timekeep_day')";
+        if ($conn->query($sql_insert) === TRUE) {
+            echo "<script>Record inserted into absent table for emp_id: $emp_id, timekeep_day: $timekeep_day</script>";
+        } else {
+            echo "<script>Error inserting record: " . $conn->error . "</script>";
+        }
+    }
+
+    // After inserting records into absent table, delete records from time_keeping table
+    $sql_delete = "DELETE FROM time_keeping WHERE out_afternoon == '00:00:00'";
+    if ($conn->query($sql_delete) === TRUE) {
+        echo "<script>Records deleted from time_keeping table successfully.</script>";
+    } else {
+        echo "<script>Error deleting records: " . $conn->error . "</script>";
+    }
+} else {
+    echo "<script>Error executing query: " . $conn->error . "</script>";
+}
+
+
+$sql_delete_dtr = "DELETE FROM dtr WHERE out_afternoon = '00:00:00'";
+if ($conn->query($sql_delete_dtr) === TRUE) {
+    echo "<script>Records deleted from dtr table where out_afternoon = '00:00:00' successfully.</script>";
+} else {
+    echo "<script>Error deleting records from dtr table: " . $conn->error . "</script>";
+}
 ?>
