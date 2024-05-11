@@ -17,7 +17,7 @@ $adminData = mysqli_fetch_assoc($adminnameexecqry);
 $adminFullName = $adminData['first_name'] . " " . $adminData['last_name'];
 
 
-$printquery = "SELECT * FROM DTR, employees WHERE DTR.emp_id = employees.emp_id and DTR.emp_id = '$printid' AND DTR.DTR_day BETWEEN '$printfrom' and '$printto' ORDER BY DTR_day ASC";
+$printquery = "SELECT * FROM dtr, employees WHERE dtr.emp_id = employees.emp_id and dtr.emp_id = '$printid' AND dtr.dtr_day BETWEEN '$printfrom' and '$printto' ORDER BY dtr_day ASC";
 $printqueryexec = mysqli_query($conn,$printquery);
 $printarray = mysqli_fetch_array($printqueryexec);
 $d = strtotime("now");
@@ -42,10 +42,10 @@ if ($printarray){
 }
 
 
-$payperiodval = "SELECT DTR.*,(TIME_KEEPING.hours_work) as totalhours, (TIME_KEEPING.undertime_hours) as totalut, TIME_KEEPING.hours_work, TIME_KEEPING.timekeep_remarks FROM DTR INNER JOIN TIME_KEEPING ON TIME_KEEPING.emp_id=DTR.emp_id AND TIME_KEEPING.timekeep_day=DTR.DTR_day WHERE DTR.emp_id = '$printid' AND DTR_day BETWEEN '$printfrom' AND '$printto' ORDER BY DTR_day ASC";
+$payperiodval = "SELECT dtr.*,(time_keeping.hours_work) as totalhours, (time_keeping.undertime_hours) as totalut, time_keeping.hours_work, time_keeping.timekeep_remarks FROM dtr INNER JOIN time_keeping ON time_keeping.emp_id=dtr.emp_id AND time_keeping.timekeep_day=dtr.dtr_day WHERE dtr.emp_id = '$printid' AND dtr_day BETWEEN '$printfrom' AND '$printto' ORDER BY dtr_day ASC";
 $payperiodexec = mysqli_query($conn,$payperiodval) or die ("FAILED TO QUERY TIMEKEEP DETAILS ".mysqli_error($conn));
 
-$totalot = "SELECT SUM(undertime_hours) as totalUT , SUM(hours_work) as totalWORKhours, SUM(hours_work) as totalness, timekeep_remarks FROM TIME_KEEPING WHERE emp_id = '$printid' AND timekeep_day BETWEEN '$printfrom' and '$printto' ORDER BY timekeep_day ASC";
+$totalot = "SELECT SUM(undertime_hours) as totalUT , SUM(hours_work) as totalWORKhours, SUM(hours_work) as totalness, timekeep_remarks FROM time_keeping WHERE emp_id = '$printid' AND timekeep_day BETWEEN '$printfrom' and '$printto' ORDER BY timekeep_day ASC";
 $totalotexec =mysqli_query($conn,$totalot) or die ("OT ERROR ".mysqli_error($conn));
 $totalotres = mysqli_fetch_array($totalotexec);
 
