@@ -244,8 +244,8 @@ include('navbarAdmin.php');
   <div class="row mt-3 mb-1 d-flex justify-content-end  ">
     <div class="col-12">
       <div class="buttons  ">
-        <a href="../ADMIN/printalldtr.php?printall" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out  mr-1" target="_blank"><i class="fas fa-print mr-1"></i> Print All</a>
-        <a href="../ADMIN/printalldtr.php?printdisplayed" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out   mr-1" target="_blank"><i class="fas fa-print mr-1"></i> Print Displayed</a>
+                <a href="../ADMIN/printcsv.php?printdisplayed" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out  mr-1" target="_blank"><i class="fas fa-print mr-1"></i> Download CSV</a>
+        <a href="../ADMIN/printalldtr.php?printdisplayed" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out   mr-1" target="_blank"><i class="fas fa-print mr-1"></i> Print PDF</a>
         <a class="inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md border border-blue-500 hover:border-blue-600 transition duration-300 ease-in-out" id="collapseBtn" onclick="toggleCollapse()" style="float: right;">Filter Options <i class="fas fa-arrow-down ml-2"></i></a>
 <!-- end filter -->
 
