@@ -138,7 +138,7 @@ if (mysqli_num_rows($payslipdetailsexecqry) > 0) {
         </style>
         </head>
         <body class="page">
-        <h4 style="text-align:center; margin-bottom:0px;" class="text-primary">WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT BIOMETRICS</h4>
+        <h4 style="text-align:center; margin-bottom:0px;" class="text-primary">PAYSLIP</h4>
         <p style="text-align:center;  margin-top:0px; margin-bottom:10px;">For the period: ' . $formattedDateRange . '</p>
         <table>
             <tr>
@@ -149,7 +149,7 @@ if (mysqli_num_rows($payslipdetailsexecqry) > 0) {
             <tr>
                 <td>Name: ' . $name . '</td>
                 <td></td>
-                <td>Pay Period: ' . $name . '</td>
+                <td>Pay Period: ' . $payperiod . '</td>
             </tr>
             <tr>
                 <td>Department: ' . $dept . ' </td>
