@@ -27,6 +27,7 @@ $adminFullName = $adminData['first_name'] . " " . $adminData['last_name'];
 
 //for checking if there are 5 absent
 date_default_timezone_set('Asia/Manila');
+$currentdate = date('Y-m-d');
 $flagTable = 'dashboard_flag';
 $currentHour = date('H:i A'); // This will give you the current time in 12-hour format with AM/PM
 $currentDate = date('Y-m-d');
@@ -101,7 +102,7 @@ if (!$lastExecutedDate || strtotime($lastExecutedDate) <= strtotime('-5 days')) 
         }
 
         // Update the flag status and last executed date
-        $updateFlagQuery = "INSERT INTO $flagTable (flag_status, last_executed_date) VALUES ('Executed', CURDATE())";
+        $updateFlagQuery = "INSERT INTO $flagTable (flag_status, last_executed_date) VALUES ('Executed', '$currentdate')";
         $conn->query($updateFlagQuery);
 
         if ($conn->error) {
@@ -124,7 +125,7 @@ $currdate = date("Y-m-d", $timeconv);
 $curryear = date("Y", $timeconv);
 
 
-$checkpperiod = "SELECT pperiod_range FROM payperiods WHERE CURDATE() BETWEEN pperiod_start and pperiod_end";
+$checkpperiod = "SELECT pperiod_range FROM payperiods WHERE '$currentdate' BETWEEN pperiod_start and pperiod_end";
 $checkpperiodexec = mysqli_query($conn, $checkpperiod) or die("FAILED TO CHECK PAYPERIOD " . mysqli_error($conn));
 $pperiodarray = mysqli_fetch_array($checkpperiodexec);
 if ($pperiodarray) {
@@ -322,8 +323,8 @@ $checkattendancemorning = "SELECT COUNT(t.emp_id) as morningatt
     COUNT(DISTINCT a.emp_id) AS absent,
     COUNT(DISTINCT e.emp_id) AS emp
     FROM employees e
-    LEFT JOIN time_keeping tk ON e.emp_id = tk.emp_id AND DATE(tk.timekeep_day) = CURDATE()
-    LEFT JOIN absences a ON e.emp_id = a.emp_id AND a.absence_date = CURDATE()";
+    LEFT JOIN time_keeping tk ON e.emp_id = tk.emp_id AND DATE(tk.timekeep_day) = '$currentdate'
+    LEFT JOIN absences a ON e.emp_id = a.emp_id AND a.absence_date = '$currentdate'";
 
 $combinedResult = mysqli_query($conn, $combinedQuery) or die("FAILED TO EXECUTE COMBINED QUERY " . mysqli_error($conn));
 
@@ -360,7 +361,7 @@ $numFemales = $genderArray['numFemales'];
 
 
 //check late
-$late = "SELECT COUNT(emp_id) as late FROM time_keeping WHERE DATE(timekeep_day) = CURDATE()";
+$late = "SELECT COUNT(emp_id) as late FROM time_keeping WHERE DATE(timekeep_day) = '$currentdate'";
 $lateexecquery = mysqli_query($conn, $late) or die("FAILED TO CHECK MORNING ATTENDANCE " . mysqli_error($conn));
 $latearray = mysqli_fetch_array($lateexecquery);
 if ($latearray) {
@@ -372,7 +373,7 @@ $lateatt = $latearray['late'];
 //check on leave employees
 $leave = "SELECT COUNT(emp_id) as numLeaves
 FROM leaves_application
-WHERE leave_status = 'Approved' AND CURDATE() >= leave_datestart AND CURDATE() <= leave_dateend";
+WHERE leave_status = 'Approved' AND '$currentdate' >= leave_datestart AND '$currentdate' <= leave_dateend";
 
 $leavesExec = mysqli_query($conn, $leave) or die("FAILED TO CHECK ABSENCES " . mysqli_error($conn));
 $leavesArray = mysqli_fetch_array($leavesExec);
@@ -385,7 +386,7 @@ $leavesarray = $leavesArray['numLeaves'];
 
 
 //check undertime
-$undertime = "SELECT COUNT(emp_id) as undertime FROM time_keeping WHERE undertime_hours > 0 AND DATE(timekeep_day) = CURDATE()";
+$undertime = "SELECT COUNT(emp_id) as undertime FROM time_keeping WHERE undertime_hours > 0 AND DATE(timekeep_day) = '$currentdate'";
 $undertimeexecquery = mysqli_query($conn, $undertime) or die("FAILED TO CHECK MORNING ATTENDANCE " . mysqli_error($conn));
 $undertimearray = mysqli_fetch_array($undertimeexecquery);
 if ($undertimearray) {
