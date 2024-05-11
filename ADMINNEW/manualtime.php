@@ -86,38 +86,41 @@ if (isset($_POST['submittime'])) {
         // Now you can check if the employee is full-time or part-time
         if ($employmentType == 'Full Time') {
             // Employee is full-time
-         $standardWorkingHours = 9; 
-
-                    $actualWorkingHours = ($timeoutObj->getTimestamp() - $timeinObj->getTimestamp()) / 3600;
-
-                    if ($actualWorkingHours >= 12) {
-                        $serviceType = "Evening Service";
-                    } else {
-                        $serviceType = "";
-                    }
+          $standardWorkingHours = 9; 
+          $actualWorkingHours = ($timeoutObj->getTimestamp() - $timeinObj->getTimestamp()) / 3600;
+          if ($actualWorkingHours >= 12) {
+              $serviceType = "Evening Service";
+          } else {
+              $serviceType = "";
+          }
 
         } elseif ($employmentType == 'Part Time') {
             // Employee is part-time
          $standardWorkingHours = 5; 
-         $actualWorkingHours = min(9, ($timeoutObj->getTimestamp() - $timeinObj->getTimestamp()) / 3600);         $serviceType = "";
+         $actualWorkingHours = min(9, ($timeoutObj->getTimestamp() - $timeinObj->getTimestamp()) / 3600);         
+         $serviceType = "";
 
 
         } 
         
         if ($actualWorkingHours < $standardWorkingHours) {
             $undertimeHours = $standardWorkingHours - $actualWorkingHours;
-            $totalLatenessUndertime = $latenessMinutes + $undertimeHours * 60; // Combine lateness and undertime in minutes
+            $totalLatenessUndertime = ($latenessMinutes + $undertimeHours) * 60; // Combine lateness and undertime in minutes
+        }else if($actualWorkingHours > $standardWorkingHours) {
+            $actualWorkingHours = $standardWorkingHours;
+            $undertimeHours =0;
+            $totalLatenessUndertime = ($latenessMinutes + $undertimeHours) * 60;
         }else{
             // $latenessMinutes  =0;
             $undertimeHours =0;
 
-            $totalLatenessUndertime = $latenessMinutes + $undertimeHours * 60; // Combine lateness and undertime in minutes
+            $totalLatenessUndertime = ($latenessMinutes + $undertimeHours) * 60; // Combine lateness and undertime in minutes
 
             // $totalLatenessUndertime  =0;
         }
-        echo "Lateness: " . $latenessMinutes . " minutes<br>";
-        echo "Undertime: " . $undertimeHours . " hours<br>";
-        echo "Total Lateness and Undertime: " . $totalLatenessUndertime . " minutes";
+        // echo "Lateness: " . $latenessMinutes . " minutes<br>";
+        // echo "Undertime: " . $undertimeHours . " hours<br>";
+        // echo "Total Lateness and Undertime: " . $totalLatenessUndertime . " minutes";
     }
       
         // Insert data into the timekeeping table
