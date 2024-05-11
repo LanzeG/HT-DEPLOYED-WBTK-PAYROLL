@@ -62,11 +62,8 @@ function printDataAsPDF($result, $urlhehe,$adminFullName) {
     $pdf->AddPage();
     $pdf->Image('../img/images.png',10,6,15); // Adjust the image path and position as needed
     $pdf->SetFont('times','B',15);
-    $pdf->Cell(80);
-    $pdf->Cell(30,10,'WEB-BASED TIMEKEEPING PAYROLL SYSTEM MASTERLIST',0,0,'C');
-      
-    
-
+    $pdf->Cell(20);
+    $pdf->Cell(30,10,'MASTERLIST',0,0,'C');
     
     $pdf->SetFont('times', 'B', 30);
     $pdf->SetTextColor(220, 220, 220); // Set a light gray color
