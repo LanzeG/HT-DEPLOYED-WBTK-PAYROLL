@@ -25,7 +25,7 @@ $pdf->SetFont('times','B',12);
 $pdf->Cell(189,2,'',0,1);//end of line
 
 //Cell (width,height,text,border,end line, [align])
-$pdf->Cell(260,10,'WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT BIOMETRICS',0,1,'C');//end
+$pdf->Cell(260,10,'LOANS',0,1,'C');//end
     
     // Header
     $pdf->SetFont('times', 'B', 8);
