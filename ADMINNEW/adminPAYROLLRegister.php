@@ -21,7 +21,22 @@ if (isset($_POST['print_btn'])){
   
   header("Location:../ADMIN/REPORTS/adminPRINTPayrollRegister.php");
 
-} 
+} else if(isset($_POST['csv'])){
+  $_SESSION['pregisterpayperiod'] = $_POST['payperiod'];
+  $payperiod = $_POST['payperiod'];
+  $pperiodquery = "SELECT * FROM payperiods WHERE pperiod_range = '$payperiod'";
+  $pperiodexecquery = mysqli_query($conn, $pperiodquery) or die ("FAILED TO SET PAY PERIOD ".mysqli_error($conn));
+  $pperiodarray = mysqli_fetch_array($pperiodexecquery);
+
+      if ($pperiodarray){
+        $_SESSION['payperiodfrom'] = $pperiodarray['pperiod_start'];
+        $_SESSION['payperiodto'] = $pperiodarray['pperiod_end'];
+        $_SESSION['payperiodrange'] = $pperiodarray['pperiod_range'];
+      }
+
+  header("Location:../ADMIN/REPORTS/payrollcsv.php");
+
+}
 
 
 
@@ -116,8 +131,8 @@ INCLUDE ('navbarAdmin.php');
                           
                         </select>
                         <div class = "control-group pt-3  text-center">
-                        <button type="submit" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out printbtn" name="print_btn">Submit</button>
-
+                        <button type="submit" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out printbtn" name="print_btn">PDF</button>
+                        <button type="submit" class="inline-block bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-md border border-green-500 hover:border-green-600 transition duration-300 ease-in-out printbtn" name="csv">CSV</button>
                       </div>
                  </div>
             </form>
