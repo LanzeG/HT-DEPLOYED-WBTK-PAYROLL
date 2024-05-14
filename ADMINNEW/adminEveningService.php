@@ -109,7 +109,6 @@ if (!empty($filterConditions) || $payPeriodFilter) {
     FROM employees 
     JOIN department ON department.dept_NAME = employees.dept_NAME
     JOIN employmenttypes ON employmenttypes.employment_TYPE = employees.employment_TYPE
-    JOIN pay_per_period ON employees.emp_id = pay_per_period.emp_id
     JOIN payrollinfo ON employees.emp_id = payrollinfo.emp_id
     JOIN position ON position.position_name = employees.position
     JOIN (
@@ -130,13 +129,8 @@ if (!empty($filterConditions)) {
  else {
     $start_from = ($page - 1) * $results_perpage;
     $searchquery = "SELECT *
-     FROM employees, payrollinfo
-     JOIN department ON department.dept_NAME = employees.dept_NAME
-     JOIN employmenttypes ON employmenttypes.employment_TYPE = employees.employment_TYPE
-     JOIN pay_per_period ON employees.emp_id = pay_per_period.emp_id
-     JOIN payrollinfo ON employees.emp_id = payrollinfo.emp_id
-     JOIN position ON position.position_name = employees.position";
-
+     FROM employees WHERE emp_id=0";
+    echo $searchquery;
   }
 
 // echo $searchquery . 'HATDOG';
@@ -201,6 +195,9 @@ if (empty($search_result)) {
   <script src="https://cdn.jsdelivr.net/npm/daterangepicker@3.1.0/daterangepicker.min.js"></script>
   <script src="../timepicker/jquery.timepicker.min.js"></script>
   <script src="../timepicker/jquery.timepicker.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
 </head>
 
 <script>
@@ -322,7 +319,7 @@ if (empty($search_result)) {
 <div class="col-lg-3 col-sm-6">
   <label for="position" class="form-label">Position</label>
     <select name="position" id="position" class="form-select" style="border-radius:10px;">
-      <option selected disabled>Select Position</option>
+      <option selected >Select Position</option>
       <?php
         if (mysqli_num_rows($total_row) > 0) {
           foreach ($total_row as $row) {
@@ -575,30 +572,5 @@ if (empty($search_result)) {
 <script src="../js/jquery.peity.min.js"></script>
 <script src="../js/fullcalendar.min.js"></script>
 <script src="../js/maruti.js"></script>
-<script>
-  function updatePositionDropdownState() {
-    var positionDropdown = document.getElementById('position');
-    var employmentTypeDropdown = document.getElementById('employmenttype');
 
-    var isContractual = employmentTypeDropdown.value === '4001'; // Change to the actual value for contractual
-
-    // Save the selected value before disabling
-    var selectedValue = positionDropdown.value;
-
-    // Disable/enable based on employment type
-    positionDropdown.disabled = isContractual;
-
-      // Set the selected value after updating options
-    positionDropdown.value = selectedValue;
-  }
-
-    // Initial setup on page load
-  updatePositionDropdownState(); // Ensure the initial state is correct
-
-    // Event listener for changes in the employment type dropdown
-  document.getElementById('employmenttype').addEventListener('change', function () {
-    updatePositionDropdownState();
-  });
-</script>
-</body>
 </html>
