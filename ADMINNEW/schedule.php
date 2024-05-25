@@ -1,11 +1,12 @@
 <?php
-$servername = "localhost:3307";
-$username = "root";
-$password = "";
-$dbname = "masterdb";
+include("../DBCONFIG.PHP");
+include("../LoginControl.php");
+include("../BASICLOGININFO.PHP");
+?>
 
-// Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+
+<?php
+
 
 // Check connection
 if ($conn->connect_error) {
@@ -21,7 +22,7 @@ if ($conn->connect_error) {
         // Check if all required fields are present
         if ($department && $employee && $year && $semester) {
             // Prepare statement for inserting schedule
-            $stmt = $conn->prepare("INSERT INTO Schedule (emp_id, sy, semester, day_of_week, start_time, end_time, schedule_type, level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt = $conn->prepare("INSERT INTO schedule (emp_id, sy, semester, day_of_week, start_time, end_time, schedule_type, level) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
 
             // Check if the prepare() call failed
             if ($stmt === FALSE) {
