@@ -11,12 +11,20 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
 
 <?php
+date_default_timezone_set('Asia/Manila');
+$current_datetime = date('Y-m-d H:i:s');
 include("../DBCONFIG.PHP");
 include("../LoginControl.php");
 include("../BASICLOGININFO.PHP");
 
 
 session_start();
+
+  if (!isset($_SESSION['adminId'])) {
+  // Redirect to the desired page
+  header("Location: ../default.php"); // Change 'login.php' to the desired page
+  exit; // Terminate script execution after redirection
+}
 
 $adminId = $_SESSION['adminId'];
 $error = false;
@@ -141,9 +149,9 @@ if (isset($_POST['submit_btn']) ){
   }
   
   // leaves
-  if ($employoptionvar == "Part Time") {
+  if ($employoptionvar == "Contractual") {
      $leaveCredits= 0;
-  } else if ($employoptionvar == "Full Time") {
+  } else if ($employoptionvar == "Permanent") {
       $datehiredObj = DateTime::createFromFormat('Y-m-d', $datehired);
       if (!$datehiredObj) {
           // Handle invalid date format
@@ -170,22 +178,24 @@ if (isset($_POST['submit_btn']) ){
 
     //activity log
     $activityLog = "Added a new employee profile ($firstname $lastname)";
-    $adminActivityQuery = "INSERT INTO adminactivity_log (emp_id, adminname, activity,log_timestamp) VALUES ('$adminId', '$adminFullName','$activityLog', NOW())";
+    $adminActivityQuery = "INSERT INTO adminactivity_log (emp_id, adminname, activity,log_timestamp) VALUES ('$adminId', '$adminFullName','$activityLog', '$current_datetime')";
     $adminActivityResult = mysqli_query($conn, $adminActivityQuery);
 
     $eveningservice = ($monthlysalary * 12 / 2080) * 1.25 * 3;
   
-  if ($employoptionvar == "Part Time") {
+  if ($employoptionvar == "Contractual") {
     $dailyrate = 0;
     $refsalary = 0;
     $gsis = 0;
     $philhealth = 0;
     $wtax=0;
+    $pagibigdeduct = 0;
 
   }else{
     $dailyrate = $hourlyrate * 8;
     $refsalary = 2000;
     $gsis = $monthlysalary * 0.09;
+    $pagibigdeduct = 200;
       
       if ($monthlysalary == 0) {
           $philhealth = 0;
@@ -249,13 +259,13 @@ if (isset($_POST['submit_btn']) ){
       
       //insert in employeeshistory
 
-      $emphistory ="INSERT INTO employmenthistory (EmployeeID, EmploymentType, Position, Department, StartDate, Status)
+      $emphistory ="INSERT INTO employmenthistory (EmployeeID, EmploymentType, Position, Department, salarygrade, step,StartDate, Status)
       VALUES 
-      ('$lastid', '$employoptionvar', '$positionvar', '$deptoptionvar', '$datehired', '$empstatus')";
+      ('$lastid', '$employoptionvar', '$positionvar', '$deptoptionvar', '$salaryGrade','$step','$datehired', '$empstatus')";
 
      if( mysqli_query($conn, $emphistory)){
     //insert in leaves
-       $leaveinfoqry = "INSERT INTO leaves (emp_id, leave_count, leaves_year) VALUES ('$lastid', '$leaveCredits', '$currentYear')";
+       $leaveinfoqry = "INSERT INTO leaves (emp_id, leave_count,vacleave_count, leaves_year) VALUES ('$lastid', '$leaveCredits','$leaveCredits', '$currentYear')";
        $leaveexecqry = mysqli_query($conn,$leaveinfoqry) or die ("FAILED TO ADD NEW PAY INFO ".mysqli_error($conn));
      }else {
       echo "Error: " . $emphistory . "<br>" . mysqli_error($conn);
@@ -263,7 +273,7 @@ if (isset($_POST['submit_btn']) ){
 
     //insert in payroll info
     $payrollinfoqry = "INSERT INTO payrollinfo (emp_id,base_pay,refsalary,daily_rate,hourly_rate,gsis, philhealth, pagibig, wtax, salarygrade, step, eveningservicerate) VALUES
-    ('$lastid','$monthlysalary','$refsalary','$dailyrate', '$hourlyrate', '$gsis', '$philhealth','$pagibig', '$wtax','$salaryGrade','$step','$eveningservice')";
+    ('$lastid','$monthlysalary','$refsalary','$dailyrate', '$hourlyrate', '$gsis', '$philhealth','$pagibigdeduct', '$wtax','$salaryGrade','$step','$eveningservice')";
     $payrollinfoexecqry = mysqli_query($conn,$payrollinfoqry) or die ("FAILED TO ADD NEW PAY INFO ".mysqli_error($conn));
     
    ?>
@@ -442,25 +452,25 @@ INCLUDE ('navbarAdmin.php');
                     <div class="col-lg-6 col-sm-12">
                     <label class="control-label">GSIS ID No:</label>
                       <div class="controls">
-                      <input type="text" class="span6 form-control" placeholder="0000-0000000-X" name="gsisidno" pattern="[0-9]{4}-[0-9]{7}-[A-Za-z]{1}" title="Enter a valid GSIS ID (e.g., E-2022-01-01-12345)" required>
+                      <input type="text" class="span6 form-control" placeholder="0000-0000000-X" name="gsisidno" pattern="[0-9]{4}-[0-9]{7}-[A-Za-z]{1}" title="Enter a valid GSIS ID (e.g., 0000-0000000-X)" required id="inputText" maxlength="14">
                       </div>
                     </div>
                     <div class="col-lg-6 col-sm-12">
                     <label class="control-label">Philhealth Number:</label>
                       <div class="controls">
-                          <input type="text" class="span6 form-control" placeholder="00-000000000-0" name="philhealthnumber" pattern="[0-9]{2}-[0-9]{9}-[0-9]{1}" title="Please enter a valid 12-digit Philhealth Number" required/>
+                          <input type="text" class="span6 form-control" placeholder="00-000000000-0" name="philhealthnumber" pattern="[0-9]{2}-[0-9]{9}-[0-9]{1}" title="Please enter a valid 12-digit Philhealth Number" required maxlength="14" id="phtext"/>
                       </div>
                     </div>
                     <div class="col-lg-6 col-sm-12">
                     <label class="control-label">PAG-IBIG Number:</label>
                       <div class="controls">
-                          <input type="text" class="span6 form-control" placeholder="0000-0000-0000" name="pagibignumber" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" title="Please enter a valid 12-digit PAG-IBIG Number" required/>
+                          <input type="text" class="span6 form-control" placeholder="0000-0000-0000" name="pagibignumber" pattern="[0-9]{4}-[0-9]{4}-[0-9]{4}" title="Please enter a valid 12-digit PAG-IBIG Number" required maxlength="14" id="pagibigtext"/>
                       </div>
                     </div>
                     <div class="col-lg-6 col-sm-12">
                     <label class="control-label">TIN:</label>
                       <div class="controls">
-                          <input type="text" class="span6 form-control" placeholder="000-000-000-xxx" name="tin" pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}-[A-Za-z0-9]{3}" title="Please enter a valid 9-digit TIN" required/>
+                          <input type="text" class="span6 form-control" placeholder="000-000-000-xxx" name="tin" pattern="[0-9]{3}-[0-9]{3}-[0-9]{3}-[A-Za-z0-9]{3}" title="Please enter a valid 9-digit TIN" maxlength="15" id="tintext" required/>
                       </div>
                     </div>
                
@@ -653,7 +663,7 @@ INCLUDE ('navbarAdmin.php');
 <!-- end ng span6 -->
   
 <div class="row-fluid">
-  <div id="footer" class="span12"> 2023 &copy; WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT BIOMETRICS</div>
+  <!--<div id="footer" class="span12"> 2023 &copy; WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT BIOMETRICS</div>-->
 </div>
 </div>
   <!-- end ng content -->
@@ -669,6 +679,59 @@ unset($_SESSION['addprofilenotif']);
 
 
 <script>
+ function formatInput(event, formatSpec) {
+            let value = event.target.value.replace(/[^0-9a-zA-Z]/g, ''); // Remove non-alphanumeric characters
+            let formattedValue = '';
+
+            formatSpec.forEach(part => {
+                let partValue = value.slice(part.start, part.end).replace(part.regex, '');
+                if (part.transform) {
+                    partValue = part.transform(partValue);
+                }
+                if (partValue.length > 0) {
+                    formattedValue += (formattedValue.length > 0 ? '-' : '') + partValue;
+                }
+            });
+
+            event.target.value = formattedValue;
+        }
+
+        const gsisFormatSpec = [
+            { start: 0, end: 4, regex: /[^0-9]/g },
+            { start: 4, end: 11, regex: /[^0-9]/g },
+            { start: 11, end: 12, regex: /[^a-zA-Z]/g, transform: v => v.toUpperCase() }
+        ];
+
+        const philhealthFormatSpec = [
+            { start: 0, end: 2, regex: /[^0-9]/g },
+            { start: 2, end: 11, regex: /[^0-9]/g },
+            { start: 11, end: 12, regex: /[^0-9]/g }
+        ];
+        const pagibigFormatSpec = [
+            { start: 0, end: 4, regex: /[^0-9]/g },
+            { start: 4, end: 8, regex: /[^0-9]/g },
+            { start: 8, end: 12, regex: /[^0-9]/g }
+        ];
+        const tinFormatSpec = [
+            { start: 0, end: 3, regex: /[^0-9]/g },
+            { start: 3, end: 6, regex: /[^0-9]/g },
+            { start: 6, end: 9, regex: /[^0-9]/g },
+            { start: 9, end: 12, regex: /[^0-9a-zA-Z]/g, transform: v => v.toUpperCase() }
+        ];
+
+        document.getElementById('inputText').addEventListener('input', function(e) {
+            formatInput(e, gsisFormatSpec);
+        });
+
+        document.getElementById('phtext').addEventListener('input', function(e) {
+            formatInput(e, philhealthFormatSpec);
+        });
+        document.getElementById('pagibigtext').addEventListener('input', function(e) {
+          formatInput(e, pagibigFormatSpec);
+        });
+        document.getElementById('tintext').addEventListener('input', function(e) {
+          formatInput(e, tinFormatSpec);
+        });
   function updateDropdowns() {
     var employmentTypeDropdown = document.getElementById('employoption');
     var positionDropdown = document.getElementById('position');
@@ -679,7 +742,7 @@ unset($_SESSION['addprofilenotif']);
 
     var selectedEmploymentType = employmentTypeDropdown.value;
 
-    if (selectedEmploymentType.toLowerCase() === 'part time') {
+    if (selectedEmploymentType.toLowerCase() === 'contractual') {
 
       salaryGradeInput.value = '';
       salaryGradeInput.disabled = true;
@@ -747,9 +810,9 @@ unset($_SESSION['addprofilenotif']);
 <style>
     body{
   font-family: 'Poppins', sans-serif;
-  background-image: linear-gradient(190deg, #FFFFFF, #DCF6FF);
-  background-repeat: no-repeat;
-  background-image: linear-gradient(190deg, #FFFFFF, #DCF6FF 100vh, #DCF6FF);
+  /*background-image: linear-gradient(190deg, #FFFFFF, #DCF6FF);*/
+  /*background-repeat: no-repeat;*/
+  /*background-image: linear-gradient(190deg, #FFFFFF, #DCF6FF 100vh, #DCF6FF);*/
   height: auto;
 }
 </style>
