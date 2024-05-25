@@ -1,7 +1,13 @@
 <?php
+include("../DBCONFIG.PHP");
+include("../LoginControl.php");
+include("../BASICLOGININFO.PHP");
+?>
+
+
+<?php
 if (isset($_POST['department'])) {
     $department = $_POST['department'];
-    $conn = new mysqli('localhost:3307', 'root', '', 'masterdb');
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
     }
