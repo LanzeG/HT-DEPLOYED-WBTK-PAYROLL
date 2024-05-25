@@ -1,3 +1,9 @@
+<?php
+include("../DBCONFIG.PHP");
+include("../LoginControl.php");
+include("../BASICLOGININFO.PHP");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,13 +12,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title></title>
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css">
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.min.js"></script>
 
-  <style>
+   <style>
     .day-label {
       min-width: 100px;
     }
@@ -27,7 +37,7 @@
       display: none;
       position: absolute;
       left: 50%;
-      transform: translateX(-50%);
+      transform: translateX(-33%);
       background-color: white;
       min-width: 300px;
       box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
@@ -43,17 +53,17 @@
 </head>
 
 <body>
+    <?php
+include('navbarAdmin.php');
+?>
 <div class="container mx-auto p-5 flex justify-center items-center min-h-screen">
     <form action="schedule.php" method="POST" id="schedule-form" class="w-full max-w-2xl mx-auto">
-        <div class="top p-5 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 mb-5 justify-center items-center">
+        <div class="top p-5 flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-1 mb-5 justify-center items-center">
             <select name="department" id="department-dropdown" class="border border-gray-300 p-2 rounded-md w-full sm:w-auto">
                 <option value="">Select Department</option>
                 <?php
-                $conn = new mysqli('localhost:3307', 'root', '', 'masterdb');
-                if ($conn->connect_error) {
-                    die("Connection failed: " . $conn->connect_error);
-                }
-                $sql = "SELECT dept_NAME FROM Department";
+               
+                $sql = "SELECT dept_NAME FROM department";
                 $result = $conn->query($sql);
                 if ($result->num_rows > 0) {
                     while ($row = $result->fetch_assoc()) {
@@ -85,7 +95,7 @@
             <div class="dropdown">
               <button type="button" class="apply-overload bg-green-500 text-white p-2 rounded-md">Overload <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-content monday-overload flex flex-col space-y-2 mt-2">
-                <button type="button" class="add-timepicker bg-green-500 text-white p-2 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
+                <button type="button" class="add-timepicker bg-green-500 text-white p-1 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
               </div>
             </div>
           </div>
@@ -99,7 +109,7 @@
             <div class="dropdown">
               <button type="button" class="apply-overload bg-green-500 text-white p-2 rounded-md">Overload <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-content tuesday-overload flex flex-col space-y-2 mt-2">
-                <button type="button" class="add-timepicker bg-green-500 text-white p-2 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
+                <button type="button" class="add-timepicker bg-green-500 text-white p-1 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
               </div>
             </div>
           </div>
@@ -113,7 +123,7 @@
             <div class="dropdown">
               <button type="button" class="apply-overload bg-green-500 text-white p-2 rounded-md">Overload <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-content wednesday-overload flex flex-col space-y-2 mt-2">
-                <button type="button" class="add-timepicker bg-green-500 text-white p-2 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
+                <button type="button" class="add-timepicker bg-green-500 text-white p-1 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
               </div>
             </div>
           </div>
@@ -127,7 +137,7 @@
             <div class="dropdown">
               <button type="button" class="apply-overload bg-green-500 text-white p-2 rounded-md">Overload <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-content thursday-overload flex flex-col space-y-2 mt-2">
-                <button type="button" class="add-timepicker bg-green-500 text-white p-2 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
+                <button type="button" class="add-timepicker bg-green-500 text-white p-1 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
               </div>
             </div>
           </div>
@@ -141,7 +151,7 @@
             <div class="dropdown">
               <button type="button" class="apply-overload bg-green-500 text-white p-2 rounded-md">Overload <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-content friday-overload flex flex-col space-y-2 mt-2">
-                <button type="button" class="add-timepicker bg-green-500 text-white p-2 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
+                <button type="button" class="add-timepicker bg-green-500 text-white p-1 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
               </div>
             </div>
           </div>
@@ -155,7 +165,7 @@
             <div class="dropdown">
               <button type="button" class="apply-overload bg-green-500 text-white p-2 rounded-md">Overload <i class="fa-solid fa-caret-down"></i></button>
               <div class="dropdown-content saturday-overload flex flex-col space-y-2 mt-2">
-                <button type="button" class="add-timepicker bg-green-500 text-white p-2 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
+                <button type="button" class="add-timepicker bg-green-500 text-white p-1 rounded-md mt-2 w-full max-w-2xl mx-auto">+</button>
               </div>
             </div>
           </div>
@@ -213,26 +223,26 @@
 
           const uniqueId = Date.now();
 
-          newOverload.innerHTML = `
-          <div class="flex flex-col sm:flex-row items-center justify-center sm:space-x-2 space-y-2 sm:space-y-2">
-              <input type="text" name="${day}_overload_start[]" class="timepicker border border-gray-300 p-2 rounded-md w-full sm:w-1/3 lg:w-1/4" placeholder="${day.charAt(0).toUpperCase() + day.slice(1)} Overload Start">
-              <input type="text" name="${day}_overload_end[]" class="timepicker border border-gray-300 p-2 rounded-md w-full sm:w-1/3 lg:w-1/4" placeholder="${day.charAt(0).toUpperCase() + day.slice(1)} Overload End">
-              <div class="flex items-center space-x-1">
+        newOverload.innerHTML = `
+              <div class="flex flex-row items-center justify-center space-x-2">
+                <input type="text" name="${day}_overload_start[]" class="timepicker border border-gray-300 p-2  rounded-md w-full sm:w-1/2 lg:w-1/3" placeholder="${day.charAt(0).toUpperCase() + day.slice(1)} OL Start">
+                <input type="text" name="${day}_overload_end[]" class="timepicker border border-gray-300 p-2  rounded-md w-full sm:w-1/2 lg:w-1/3" placeholder="${day.charAt(0).toUpperCase() + day.slice(1)} OL End">
+                <div class="flex items-center space-x-1">
                   <label><input type="radio" name="${day}_overload_option_${uniqueId}" value="GD"> GD</label>
                   <label><input type="radio" name="${day}_overload_option_${uniqueId}" value="UG"> UG</label>
+                </div>
               </div>
-          </div>
-      `;
+            `;
 
-          overloadContainer.insertBefore(newOverload, this);
-          flatpickr(newOverload.querySelectorAll('.timepicker'), {
-            enableTime: true,
-            noCalendar: true,
-            dateFormat: "H:i",
-            time_24hr: true
-          });
-        } else {
-          Swal.fire({
+            overloadContainer.insertBefore(newOverload, this);
+            flatpickr(newOverload.querySelectorAll('.timepicker'), {
+              enableTime: true,
+              noCalendar: true,
+              dateFormat: "H:i",
+              time_24hr: true
+            });
+          } else {
+            Swal.fire({
             title: 'Maximum 3 Overload per day',
             icon: 'info',
             toast: true,
@@ -245,9 +255,11 @@
               toast.onmouseleave = Swal.resumeTimer;
             }
           });
-        }
+         
+          }
+        });
       });
-    });
+
 
     // Generate school years for the year picker
     const yearPicker = document.getElementById('year-picker');
