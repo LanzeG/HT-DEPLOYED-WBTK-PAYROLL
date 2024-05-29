@@ -13,7 +13,6 @@ $adminData = mysqli_fetch_assoc($adminnameexecqry);
 $adminFullName = $adminData['first_name'] . " " . $adminData['last_name'];
 
 $idres = $_GET['id'];
-// $DELquery = "SELECT * from SHIFT WHERE shift_ID ='$idres'";
 $DELquery = "SELECT * FROM leaves_type WHERE lvtype_ID ='$idres'";
 $DELselresult = mysqli_query($conn, $DELquery) or die("Failed to search DB. " . mysql_error());
 $DELcurr = mysqli_fetch_array($DELselresult);
@@ -27,7 +26,7 @@ if ($DELcount != 0 && $DELcurr) {
     $currleavecount = $DELcurr['lvtype_count'];
 } else {
     $_SESSION['delnotif'] = "Leave information not found.";
-} /*2nd else end*/
+} 
 
 if (isset($_POST['delete_btn'])) {
 
@@ -43,13 +42,6 @@ if (isset($_POST['delete_btn'])) {
         $DELquery2 = "DELETE FROM leaves_type WHERE lvtype_ID = '$idres'";
         $delval = mysqli_query($conn, $DELquery2);
 
-
-
-        /**$auditinfo = $idres+" Profile deleted";
-
-                 $auditquery = "INSERT INTO audittrail (emp_id, audit_info) VALUES ('$empid','$auditinfo')";
-                  $auditresult = mysqli_query($conn,$auditquery) or die(mysql_error());  
-      */
         if ($delval) {
             echo "success";
         } else {
@@ -69,6 +61,7 @@ if (isset($_POST['delete_btn'])) {
             title: "Are you sure?",
             text: "Once deleted, you will not be able to recover this Leave!",
             icon: "warning",
+            toast: true,
             buttons: true,
             dangerMode: true,
         })
@@ -156,8 +149,8 @@ if (isset($_POST['delete_btn'])) {
 </form>
 
     <div class="row-fluid">
-        <div id="footer" class="span12"> 2023 &copy; WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT
-            BIOMETRICS</div>
+<!--         <div id="footer" class="span12"> 2023 &copy; WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM USING FINGERPRINT
+            BIOMETRICS</div> -->
     </div>
     <script src="../js/maruti.dashboard.js"></script>
 
