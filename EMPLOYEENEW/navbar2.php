@@ -1,558 +1,277 @@
 <?php
+set_time_limit(60);
 include("../DBCONFIG.PHP");
+include("../LoginControl.php");
 include("../BASICLOGININFO.PHP");
 
 session_start();
+date_default_timezone_set('Asia/Hong_Kong'); 
 
-$uname = $_SESSION['uname'];
+// $adminId = $_SESSION['adminId'];
+
+
 $empid = $_SESSION['empId'];
+$payperiod = $_SESSION['payperiods'];
 
-$employeeQuery = "SELECT first_name, last_name, img_tmp, acct_type FROM employees WHERE emp_id = '$empid'";
-$employeeResult = mysqli_query($conn, $employeeQuery) or die("FAILED TO CHECK EMP ID " . mysqli_error($conn));
+$query = "SELECT * FROM payperiods WHERE pperiod_range = '$payperiod'";
+$result = mysqli_query($conn, $query);
 
-$employeeData = mysqli_fetch_assoc($employeeResult);
+if ($result) {
+    // Fetch the data from the result set
+    $data = mysqli_fetch_assoc($result);
+    $period_start = isset($data['pperiod_start']) ? $data['pperiod_start'] : null;
+    $period_end = isset($data['pperiod_end']) ? $data['pperiod_end'] : null;
 
-if ($employeeData) {
-    $employeeFullName = $employeeData['first_name'] . " " . $employeeData['last_name'];
-    $imgTmp = $employeeData['img_tmp'];
-    $accountType = $employeeData['acct_type'];
-} else {
-    $employeeFullName = "Unknown Employee";
-    $imgTmp = "";
-    $accountType = "";
+    $dateTime = new DateTime($period_start);
+    $month = $dateTime->format('F'); // Full month name (e.g., January)
+    $year = $dateTime->format('Y');  // 4-digit year (e.g., 2024)
 }
+
+$printquery = "SELECT * FROM dtr, employees WHERE dtr.emp_id = employees.emp_id and dtr.emp_id = '$empid' AND dtr.dtr_day BETWEEN '$period_start' and '$period_end' ORDER BY dtr_day ASC";
+$printqueryexec = mysqli_query($conn,$printquery);
+$printarray = mysqli_fetch_array($printqueryexec);
+$d = strtotime("now");
+        $currtime = date ("Y-m-d H:i:s", $d);
+// $payperiod = $_SESSION['payperiodrange'];
+$dateTime = new DateTime($period_start);
+$month = $dateTime->format('F'); // Full month name (e.g., January)
+$year = $dateTime->format('Y');  // 4-digit year (e.g., 2024)
+
+
+
+if ($printarray){
+
+  $prefix = $printarray['prefix_ID'];
+  $idno = $printarray['emp_id'];
+  $lname = $printarray['last_name'];
+  $fname = $printarray['first_name'];
+  $mname = $printarray['middle_name'];
+  $dept = $printarray['dept_NAME'];
+  $position = $printarray['position'];
+
+  $name = "$lname, $fname $mname";
+  $empID = "$prefix$idno";
+}
+
+
+$payperiodval = "
+SELECT 
+    tk.*,
+     tk.undertime_hours AS totalut,
+    SUM(ol.overload_hours) AS total_overload_hours
+FROM 
+    time_keeping tk
+LEFT JOIN 
+    overload ol ON tk.timekeep_id = ol.timekeep_id
+WHERE 
+    tk.emp_id = '$empid' 
+    AND tk.timekeep_day BETWEEN '$period_start' AND '$period_end'
+GROUP BY 
+    tk.emp_id, 
+    tk.timekeep_day, 
+    tk.in_morning;
+";
+
+$payperiodexec = mysqli_query($conn,$payperiodval) or die ("FAILED TO QUERY TIMEKEEP DETAILS ".mysqli_error($conn));
+
+$totalot = "SELECT time_keeping.*, SUM(undertime_hours) as totalUT, SUM(hours_work) as totalWORKhours, SUM((hours_work)) as totalness FROM time_keeping WHERE emp_id = '$empid' AND timekeep_day BETWEEN '$period_start' and '$period_end' ORDER BY timekeep_day ASC";
+$totalotexec =mysqli_query($conn,$totalot) or die ("OT ERROR ".mysqli_error($conn));
+$totalotres = mysqli_fetch_array($totalotexec);
+
+
+
+require_once("fpdf181/fpdf.php");
+
+//A4 width: 219mm
+//default margin : 10mm each side
+//writable horizontal: 219.(10*2)= 189mm
+
+$pdf = new FPDF ('P','mm','LEGAL');
+
+$pdf ->AddPage();
+// $pdf->Image('../img/images.png',100,6,15); // Adjust the image path and position as needed
+
+
+// Add watermark
+$pdf->SetFont('times', 'B', 30);
+$pdf->SetTextColor(220, 220, 220); // Set a light gray color
+$pdf->Text(40, 90, 'COMPUTER-GENERATED'); // Set the text and position
+$pdf->SetTextColor(0); // Reset text color
+
+// Add watermark
+$pdf->SetFont('times', 'B', 30);
+$pdf->SetTextColor(220, 220, 220); // Set a light gray color
+$pdf->Text(40, 120, 'COMPUTER-GENERATED'); // Set the text and position
+$pdf->SetTextColor(0); // Reset text color
+
+
+
+
+if (mysqli_num_rows($printqueryexec) > 0) {
+//set font times, bold, 14pt
+$pdf->SetFont('times','B',12);
+
+//Spacer
+
+
+//Cell (width,height,text,border,end line, [align])
+// $pdf->Cell(40,10,'',0,1);
+// $pdf->Cell(40,10,'',0,0);
+// // $pdf->Cell(116,10,'WEB-BASED TIMEKEEPING AND PAYROLL SYSTEM',0,0);
+// $pdf->Cell(189,10,'',0,1);//end of line
+$pdf->SetFont('times','B',12);
+$pdf->Cell(70,10,'',0,0);//end
+$pdf->Cell(59,10,'DAILY TIME RECORD',0,1);//end
+
+//set font to times, regular, 12pt
+$pdf->SetFont('times','',12);
+
+
+
+$pdf->Cell(12,5,'',0,0);
+
+
+//Spacer
+$pdf->Cell(189,5,'',0,1);//end of line
+
+$pdf->SetFont('times','',10);
+$pdf->Cell(6,3,'',0,0);//hspacer
+$pdf->Cell(22,1,'Employee ID:',0,0);
+
+$pdf->SetFont('times','B',10);
+$pdf->Cell(90,1,$empID,0,0);
+
+$pdf->SetFont('times','',10);
+
+$pdf->Cell(22,6,'Date Printed:',0,0);
+$pdf->Cell(20,6,$currtime,0,1);//end of line
+
+$pdf->Cell(6,3,'',0,0);
+$pdf->Cell(15,0,'Name:',0,0);
+
+$pdf->SetFont('times','B',10);
+$pdf->Cell(97,0,$name,0,0);
+
+$pdf->SetFont('times','',10);
+$pdf->Cell(20,3,'Pay Period:',0,0);
+
+$pdf->SetFont('times','B',10);
+$pdf->Cell(20,3,$period_start. 'to' . $period_end,0,1);//end of line
+
+$pdf->SetFont('times','',10);
+$pdf->Cell(6,3,'',0,0);
+$pdf->Cell(22,5,'Department:',0,0);
+$pdf->SetFont('times','B',10);
+$pdf->Cell(84,5,$dept,0,0);//end of line
+
+$pdf->SetFont('times','',10);
+$pdf->Cell(6,3,'',0,0);
+$pdf->Cell(12,5,'Month:',0,0);
+$pdf->SetFont('times','B',10);
+$pdf->Cell(5,5,$month,0,0);//end of line
+
+$pdf->SetFont('times','',10);
+$pdf->Cell(13,3,'',0,0);
+$pdf->Cell(9,5,'Year:',0,0);
+$pdf->SetFont('times','B',10);
+$pdf->Cell(45,5,$year,0,1);//end of line
+//SPACER
+$pdf->Cell(189,5,'',0,1);//end of line
+
+
+
+//set font to times, regular, 12pt
+$pdf->SetFont('times','',12);
+
+$pdf->Cell(30,7,'DATE',1,0,'C');
+$pdf->Cell(19,7,'IN',1,0,'C');
+$pdf->Cell(19,7,'OUT',1,0,'C');
+$pdf->Cell(30,7,'Hours Worked',1,0,'C');
+$pdf->Cell(40,7,'Undertime (Minutes)',1,0,'C');
+$pdf->Cell(30,7,'Overload Hours',1,0,'C');  // New column for overload hours
+$pdf->Cell(30,7,'Remarks',1,1,'C');
+$pdf->SetFillColor(51, 255, 175); 
+$pdf->Cell(30,1,'',1,0,'',true);
+$pdf->Cell(19,1,'',1,0,'',true);
+$pdf->Cell(19,1,'',1,0,'',true);
+$pdf->Cell(30,1,'',1,0,'',true);
+$pdf->Cell(40,1,'',1,0,'',true);
+$pdf->Cell(30,1,'',1,0,'',true);  // New column for overload hours
+$pdf->Cell(30,1,'',1,1,'',true);
+
+$pdf->SetFont('times','',11);
+if ($period_start !== null && $period_end !== null){
+while ($payperiodarray = mysqli_fetch_array($payperiodexec)):;
+$dtrday = $payperiodarray['timekeep_day'];
+$day = date('d', strtotime($dtrday));
+$hrswrk = $payperiodarray['hours_work'];
+$undertime = $payperiodarray['totalut'];
+$overload = $payperiodarray['total_overload_hours']; // Fetch overload hours
+$remarks = $payperiodarray['timekeep_remarks'];
+
+$pdf->SetFont('times','',11);
+$pdf->Cell(30,7,$day,1,0,'C');
+$pdf->Cell(19,7,$payperiodarray['in_morning'],1,0,'C');
+$pdf->Cell(19,7,$payperiodarray['out_afternoon'],1,0,'C');
+$pdf->Cell(30,7,$hrswrk,1,0,'C');
+$pdf->Cell(40,7,$undertime,1,0,'C');
+$pdf->Cell(30,7,$overload,1,0,'C');  // Add overload hours to the table
+$pdf->Cell(30,7,$remarks,1,1,'C');
+endwhile;
+//spacer
+$pdf->Cell(189,1,'',0,1);
+
+//set font times, bold, 12pt
+$pdf->SetFont('times','B',12);
+
+$pdf->Cell(189,5,'TOTAL:',0,1);//end of line
+//spacer
+$pdf->Cell(189,1,'',0,1);//end of line
+
+//set font times, regular, 12pt
+$pdf->SetFont('times','',10);
+
+$pdf->Cell(65.8,7,'HOURS',1,0,'C');
+$pdf->Cell(66.8,7,'TOTAL UNDERTIME',1,0,'C');
+$pdf->Cell(65.8,7,'TOTAL OVERLOAD',1,1,'C');
+$pdf->SetFont('times','',10);
+// $pdf->Cell(25.8,7,'',1,0,'C');
+// $pdf->Cell(17.8,7,'',1,0,'C');
+$pdf->SetFont('times','',12);
+// $pdf->Cell(41.8,7,'',1,1,'C');//end of line
+
+$totalOverload = 0; // Initialize total overload
+
+// Fetch and calculate total overload hours
+$payperiodexec = mysqli_query($conn, $payperiodval);
+while ($payperiodarray = mysqli_fetch_array($payperiodexec)) {
+    $totalOverload += $payperiodarray['total_overload_hours'];
+}
+
+$pdf->Cell(65.8,7,$totalotres['totalWORKhours'],1,0,'C');
+$pdf->Cell(66.8,7,$totalotres['totalUT'],1,0,'C');
+$pdf->Cell(65.8,7,$totalOverload,1,1,'C'); // Total overload hours
+
+//set font times, italic , 12pt
+$pdf->SetFont('times','I',12);
+$pdf->Cell(189,10   ,'',0,1);//end of line
+$pdf->Cell(100,5,'I hereby certify that the above records are true and correct.',0,0,'C');//end of line
+//spacer
+$pdf->Cell(189,2   ,'',0,1);//end of line
+
+$pdf->Cell(110,5,'',0,0);
+$pdf->Cell(85,9,'________________________________',0,1);//end of line
+
+//set font times, regular, 10
+$pdf->SetFont('times','',10);
+$pdf->Cell(295,5,'Printed by: ' . $name,0,1,'C');
+
+
+$pdf->Cell(110,5,'',0,0);
+$pdf->Cell(79,5,'Employee signature over printed name',0,1,'C');//end of line
+
+}
+}
+
+$pdf->Output();
 ?>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="style11.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script> -->
-    <script src="../ADMINNEW/notificationScript.js"></script>
-    <link rel="stylesheet" href="../ADMINNEW/notificationStyle.css">
-
-    
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-       
-            /*===== LINK ACTIVE =====*/
-            const linkColor = document.querySelectorAll('.nav_link')
-
-            function colorLink() {
-                if (linkColor) {
-                    linkColor.forEach(l => l.classList.remove('active'))
-                    this.classList.add('active')
-                }
-            }
-
-            linkColor.forEach(l => l.addEventListener('click', colorLink))
-        });
-    </script>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            document.querySelectorAll('.sidebar .nav-link').forEach(function (element) {
-
-                element.addEventListener('click', function (e) {
-
-                    let nextEl = element.nextElementSibling;
-                    let parentEl = element.parentElement;
-
-                    if (nextEl) {
-                        e.preventDefault();
-                        let mycollapse = new bootstrap.Collapse(nextEl);
-
-                        if (nextEl.classList.contains('show')) {
-                            mycollapse.hide();
-                        } else {
-                            mycollapse.show();
-                            // find other submenus with class=show
-                            var opened_submenu = parentEl.parentElement.querySelector('.submenu.show');
-                            // if it exists, then close all of them
-                            if (opened_submenu) {
-                                new bootstrap.Collapse(opened_submenu);
-                            }
-                        }
-                    }
-                }); // addEventListener
-            }) // forEach
-        });
-    </script>
-
-    <script>
-        $(function () {
-            $('[data-toggle="tooltip"]').tooltip();
-        });
-    </script>
-
-    <style>
-        .sidebar li .submenu {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-            padding-left: 1rem;
-            padding-right: 1rem;
-          
-        }
-        .header_notification {
-            font-size: 20px;
-            cursor: pointer;
-        }
-        .notification-dropdown {
-            display: none;
-            position: absolute;
-            top: 30px; /* Adjust this value based on your design */
-            right: 0;
-            min-width: 200px;
-            background-color: #fff;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            border-radius: 5px;
-            padding: 10px;
-            
-        
-        }
-        .notification-container {
-            position: relative;
-            
-        }
-
-        .notification-bell {
-            cursor: pointer;
-            position: relative;
-            display: inline-block;
-        }
-
-        .bell-icon {
-            font-size: 24px;
-        }
-        
-        .info
-        {
-            margin:0px;
-        }
-
-@media (max-width: 767.98px) { 
-  .info
-{
-font-size: 18px;
-}
-}
-    </style>
-
-    <title>Document</title>
-</head>
-
-<body >
-    <header class="header body-pd" id="header">
-        <!-- <div class="header_toggle "> <i class='bx bx-menu' id="header-toggle"></i> <span class="info">EMPLOYEE MANAGEMENT</span> </div> -->
-        <div class="header_toggle d-flex align-items-center">
-        <button class="btn" id="toggle-btn" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
-            <i class="fa-solid fa-bars" style="font-size: 20px;"></i>
-        </button> 
-        <h4 class="info">EMPLOYEE MANAGEMENT</h4>
-    </div>
-        <!-- <div class="header_img"> <img src="https://i.imgur.com/hczKIze.jpg" alt=""> </div> -->
-        <div id="" class="notification-container">
-             <span class="icon-wrapper" style="margin-left: 5px; padding-bottom: 10px;">
-    <a href="user_profile.php" style="color: black;">
-        <span class="icon-text"><?php echo  $employeeFullName; ?></span>
-        <span class="icon fas fa-user profile-icon"></span>
-    </a>
-</span>
-        <button class="bell-icon" style="background: none; border: none; ">&#128276;</button>
-        
- <style>
-.icon-wrapper .icon-text {
-    display: inline;
-    font-family: 'Poppins', sans-serif;
-    text-decoration: none;
-}
-.icon-wrapper .icon-text:hover{
-    text-decoration: none;
-}
-
-.icon-wrapper .icon {
-    display: none; 
-}
-
-@media (max-width: 768px) {
-    .icon-wrapper .icon-text {
-        display: none; 
-    }
-
-    .icon-wrapper .icon {
-        display: inline; 
-    }
-}
-
-.admin-management {
-  font-size: 23px;
-}
-
-@media screen and (max-width: 768px) {
-  .admin-management {
-    font-size: 15px;
-  }
-}
-
-</style>
-
-    <div class="notification-badge" style="font-family:arial ;">0</div> <!-- Placeholder for the badge -->
-    <div class="notification-dropdown">
-        <!-- Notifications will be displayed here -->
-    </div>
-    </header>
-
-
-    <div class="l-navbar" id="nav-bar">
-        <nav class="nav sidebar">
-            <div>   <a href="#" class="nav_logo" style="text-decoration: none;">
-    <img src="../img/cube.png" alt="Manage Account Icon" style="width: 20px; height: 20px;">
-    <span class="nav_logo-name" style="font-family: 'Poppins', sans-serif;">Manage Account</span>
-    </a>
-            <div class="nav_list">
-            <a href="employee-dashboard.php" class="nav_link  mb-2 " data-bs-toggle="tooltip" data-bs-placement="top" title="Dashboard">
-        <img src="../img/presentation.png" alt="Dashboard Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Dashboard
-    </a>
-            <a href="user_profile.php" class="nav_link" data-bs-toggle="tooltip" data-bs-placement="top" title="Profile">
-        <img src="../img/human.png" alt="Ovetime Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">User Profile
-    </a>
-            <a href="LeaveApplication.php" class="nav_link"data-bs-toggle="tooltip" data-bs-placement="top" title="Apply Leave">
-        <img src="../img/write.png" alt="Leave Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Apply Leave
-    </a>
-            <a href="dlforms.php" class="nav_link"data-bs-toggle="tooltip" data-bs-placement="top" title="Apply Leave">
-        <img src="../img/carousel/curriculum-vitae.png" alt="Leave Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Forms
-    </a>
-   
-            <li class="nav-item has-submenu ">
-    <a href="#" class="nav_link nav-link mb-2 mt-2 " data-bs-toggle="tooltip" data-bs-placement="top" title="My Records">
-        <img src="../img/folder.png" alt="My Records Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">My Records <i class="fa-solid fa-caret-down" style="color: #00b464; margin-left:5px;"></i>
-    </a>
-
-
-    <!-- <a href="admin/adminPAYROLLINFO.php" class="nav_link nav-link mb-2 mt-2 "> <i class="fa-solid fa-receipt nav-icon"></i> <span class="nav_name">Manage Payroll</span> </a> -->
-		<ul class="submenu collapse">
-             <?php if ($accountType === 'Faculty' || $accountType === 'Faculty w/ Admin'): ?>
-                <li><a class="nav-link text-white" href="empSchedule.php"><i class="fas fa-calendar-alt nav_icon"></i> Schedule</a></li>
-            <?php endif; ?>
-			<li><a class="nav-link text-white" href="empNEWAttendance.php"><i class='fa-solid fa-user nav_icon'></i> Attendance</a></li>
-			<li><a class="nav-link text-white" href="empNEWPAYROLL.php"><i class="fa-solid fa-money-check"></i> Payroll </a></li>
-			<li><a class="nav-link text-white" href="deductions.php"><i class="fa-solid fa-money-check"></i> Deductions </a></li>
-            <li><a class="nav-link text-white" href="empLoans.php"><i class="fa-solid fa-hand-holding-hand"></i> Loans </a></li>
-            
-          </ul>
-	</li>
-    <a href="empFeedback.php" class="nav_link" data-bs-toggle="tooltip" data-bs-placement="top" title="Raise Issue">
-        <img src="../img/megaphone.png" alt="Raise Issue Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Raise Concern
-    </a>
-
-  
-                     <!-- <a href="#" class="nav_link"> <i class='bx bx-user nav_icon'></i> <span class="nav_name">Apply Overtime</span> </a>  -->
-                     <!-- <a href="admin/adminMasterfile.php" class="nav_link"> <i class='bx bx-message-square-detail nav_icon'></i> <span class="nav_name">Data Management</span> </a>  -->
-                     <!-- <a href="admin/adminMasterfile.php" class="nav_link mb-2 mt-2 "> <i class='bx bx-bookmark nav_icon'></i> <span class="nav_name">Attendace Management</span> </a>
-                      <a href="adminPAYROLLINFO.php" class="nav_link mb-2 "> <i class='bx bx-folder nav_icon'></i> <span class="nav_name">Payroll</span> </a>
-                       <a href="admin/adminTimesheet.php" class="nav_link mb-2"> <i class='bx bx-bar-chart-alt-2 nav_icon'></i> <span class="nav_name">Reports </span></a> -->
-                     </div>
-            </div> <a href="../LOGOUT.PHP" class="nav_link"> <i class='fa-solid fa-arrow-right-from-bracket nav_icon'></i> <span class="nav_name">Sign Out</span> </a>
-        </nav>
-    </div>
-    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script> -->
-
-    <div class="offcanvas offcanvas-start w-75" data-bs-backdrop="static" tabindex="-1" id="offcanvasExample"
-    aria-labelledby="offcanvasExampleLabel">
-    <div class="offcanvas-header">
-        <button type="button" class="btn-close btn-close-white" style="color:white;" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body">
-        <nav class="nav sidebar">
-            <div>   <a href="#" class="nav_logo" style="text-decoration: none;">
-    <img src="../img/cube.png" alt="Manage Account Icon" style="width: 20px; height: 20px;">
-    <span class="nav_logo-name" style="font-family: 'Poppins', sans-serif;">Manage Account</span>
-    </a>
-            <div class="nav_list">
-            <a href="employee-dashboard.php" class="nav_link  mb-2 " data-bs-toggle="tooltip" data-bs-placement="top" title="Dashboard">
-        <img src="../img/presentation.png" alt="Dashboard Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Dashboard
-    </a>
-            <a href="user_profile.php" class="nav_link" data-bs-toggle="tooltip" data-bs-placement="top" title="Profile">
-        <img src="../img/human.png" alt="Ovetime Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">User Profile
-    </a>
-            <a href="LeaveApplication.php" class="nav_link"data-bs-toggle="tooltip" data-bs-placement="top" title="Apply Leave">
-        <img src="../img/write.png" alt="Leave Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Apply Leave
-    </a>
-    
-      <a href="dlforms.php" class="nav_link"data-bs-toggle="tooltip" data-bs-placement="top" title="Apply Leave">
-        <img src="../img/carousel/curriculum-vitae.png" alt="Leave Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Forms
-    </a>
-   
-
-   
-            <li class="nav-item has-submenu ">
-    <a href="#" class="nav_link nav-link mb-2 mt-2 " data-bs-toggle="tooltip" data-bs-placement="top" title="My Records">
-        <img src="../img/folder.png" alt="My Records Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">My Records <i class="fa-solid fa-caret-down" style="color: #00b464; margin-left:5px;"></i>
-    </a>
-
-
-    <!-- <a href="admin/adminPAYROLLINFO.php" class="nav_link nav-link mb-2 mt-2 "> <i class="fa-solid fa-receipt nav-icon"></i> <span class="nav_name">Manage Payroll</span> </a> -->
-		<ul class="submenu collapse">
-		    <?php if ($accountType === 'Faculty' || $accountType === 'Faculty w/ Admin'): ?>
-                <li><a class="nav-link text-white" href="empSchedule.php"><i class="fas fa-calendar-alt nav_icon"></i> Schedule</a></li>
-            <?php endif; ?>
-			<li><a class="nav-link text-white" href="empNEWAttendance.php"><i class='fa-solid fa-user nav_icon'></i> Attendance</a></li>
-			<li><a class="nav-link text-white" href="empNEWPAYROLL.php"><i class="fa-solid fa-money-check"></i> Payroll </a></li>
-			<li><a class="nav-link text-white" href="deductions.php"><i class="fa-solid fa-money-check"></i> Deductions </a></li>
-            <li><a class="nav-link text-white" href="empLoans.php"><i class="fa-solid fa-hand-holding-hand"></i> Loans </a></li>
-            
-          </ul>
-	</li>
-    <a href="empFeedback.php" class="nav_link" data-bs-toggle="tooltip" data-bs-placement="top" title="Raise Issue">
-        <img src="../img/megaphone.png" alt="Raise Issue Icon" style="width: 20px; height: 20px;"> <span  style="
-        font-family: 'Poppins', sans-serif; font-size: 1rem;">Raise Concern
-    </a>
-
-  
-                     <!-- <a href="#" class="nav_link"> <i class='bx bx-user nav_icon'></i> <span class="nav_name">Apply Overtime</span> </a>  -->
-                     <!-- <a href="admin/adminMasterfile.php" class="nav_link"> <i class='bx bx-message-square-detail nav_icon'></i> <span class="nav_name">Data Management</span> </a>  -->
-                     <!-- <a href="admin/adminMasterfile.php" class="nav_link mb-2 mt-2 "> <i class='bx bx-bookmark nav_icon'></i> <span class="nav_name">Attendace Management</span> </a>
-                      <a href="adminPAYROLLINFO.php" class="nav_link mb-2 "> <i class='bx bx-folder nav_icon'></i> <span class="nav_name">Payroll</span> </a>
-                       <a href="admin/adminTimesheet.php" class="nav_link mb-2"> <i class='bx bx-bar-chart-alt-2 nav_icon'></i> <span class="nav_name">Reports </span></a> -->
-                        <div class="" style="padding-bottom:300px">
-            <a href="../LOGOUT.PHP" class="nav_link" > <i class="fa-solid fa-arrow-right-from-bracket"></i> <span class="nav_name">SignOut</span> </a>
-
-            </div>
-                     
-                     </div>
-            </div>
-          
-        </nav>
-    </div>
-</div>
-
-
-
-
-
-    
-    <script>
-    $(document).ready(function () {
-        const bellIcon = $('.bell-icon');
-        const notificationDropdown = $('.notification-dropdown');
-        const badge = $('.notification-badge');
-
-        function fetchNotifications(markAsRead) {
-            console.log(`Fetching notifications (markAsRead: ${markAsRead})...`);
-            $.ajax({
-                url: `empnotification.php?mark_as_read=${markAsRead}`,
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    console.log('Received data:', data);
-                    updateDropdown(data);
-                    updateBadge(data.count);
-                },
-                error: function (error) {
-                    console.error('Error fetching notifications:', error);
-                }
-            });
-        }
-
-        function updateDropdown(data) {
-    console.log('Updating dropdown with data:', data);
-    notificationDropdown.empty();
-
-    if (data.count > 0) {
-    $.each(data.notifications, function (index, notification) {
-        const link = getNotificationLink(notification); // Function to determine the link based on notification type
-        const notificationItem = $('<div>').addClass('notification-item').append($('<a>').attr('href', link).css('color', '#050505').text(notification.message));
-        notificationDropdown.append(notificationItem);
-    });
-} else {
-    const noNotificationItem = $('<div>').css('color', '#050505').text('No new notifications');
-    notificationDropdown.append(noNotificationItem);
-}
-
-// Add "See All Notifications" link
-const seeAllLink = $('<div>').addClass('notification-item see-all').append($('<a>').attr('href', 'all_notifications.php').css('color', '#050505').text('See All Notifications'));
-notificationDropdown.append(seeAllLink);
-
-}
-
-function getNotificationLink(notification) {
-    // Function to determine the link based on notification type
-    if (notification.type === 'Overtime') {
-        return 'newapplyovertime.php';
-    } else if (notification.type === 'Leave') {
-        return 'LeaveApplication.php';
-    } else if (notification.type === 'Loan') {
-        return 'empLoans.php';
-    } else if (notification.type === 'Payroll') {
-    return 'empNEWPAYROLL.php';
-    }
-    else if (notification.type === 'Announcement') {
-    return 'empAnnouncement.php?notification_id=' + notification.notification_id;
-    }
-    
-    else {
-        // Default link
-        return '#';
-    }
-}
-
-
-        function updateBadge(count) {
-            console.log('Updating badge with count:', count);
-            badge.text(count);
-            badge.css('display', (count > 0) ? 'block' : 'none');
-        }
-
-        bellIcon.click(function () {
-            console.log('Bell icon clicked');
-            notificationDropdown.toggle();
-
-            if (notificationDropdown.is(':visible')) {
-                fetchNotifications(true);
-            }
-        });
-
-        $(document).click(function (event) {
-            if (!$(event.target).hasClass('bell-icon') && !$(event.target).closest('.notification-dropdown').length) {
-                notificationDropdown.hide();
-            }
-        });
-
-        // Fetch notifications on page load and update badge
-        fetchNotifications(false);
-    });
-</script>
-</body>
-    <!--Container Main start-->
-    
-</html>
-
-<style>
-    .header_toggle {
-  /* Your existing styles for header_toggle */
-}
-
-.info {
-  font-size: 23px; /* Default font size */
-}
-
-@media screen and (max-width: 768px) {
-  .info {
-    font-size: 18px; /* Adjusted font size for small screens */
-  }
-}
-</style>
-<style>
-.notification-modal-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    z-index: 9999;
-    
-}
-
-.notification-modal {
-    border: 1px solid #dddfe2;
-    background-color: #fff;
-    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 10px; /* Add margin between notifications */
-    max-width: 300px; /* Adjust the maximum width of notifications if needed */
-    display: none;
-}
-
-.notification-modal.show {
-    display: flex;
-    width:300px;
-    font-family: 'Poppins', sans-serif;
-    cursor: pointer;
-}
-.close-btn {
-    background: transparent;
-    border: none;
-    color: #90949c;
-    font-size: 20px;
-    cursor: pointer;
-    margin-left: auto;
-}
-
-.facebook-icon {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    margin-right: 10px;
-    margin-top:2px;
-}
-</style>
-
-<div class="notification-modal-container" id="notificationModalContainer">
-    <!-- NOTIFICATION NG MODAL -->
-</div>
-
-<script>
-$(document).ready(function() {
-    //para hindi mag duplicate ang parehas na notification
-    var shownNotifications = [];
-
-    function loadNotifications() {
-        $.ajax({
-            url: 'empnotification.php',
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                if (data.count > 0) {
-                    data.notifications.forEach(function(notification, index) {
-                        var message = notification.message;
-                        if (!shownNotifications.includes(message)) {
-                            showNotification(message);
-                            shownNotifications.push(message);
-                        }
-                    });
-                }
-            }
-        });
-    }
-
-    loadNotifications();
-
-    setInterval(loadNotifications, 5000); 
-});
-
-function showNotification(message) {
-    if (window.location.href.indexOf("all_notifications.php") === -1) {
-        var notificationModal = $('<div class="notification-modal"><div class="notification-header" style="font-size:14px;">New Notification <button class="close-btn" style="float: right;" onclick="closeNotification(this)">✕</button></div><div class="notification-content"><a href="all_notifications.php"><img src="../img/carousel/paper-plane.png" alt="Facebook Icon" class="facebook-icon"></a><span>' + message + '</span></div></div>');
-        $('#notificationModalContainer').append(notificationModal);
-        notificationModal.fadeIn().addClass('show');
-        setTimeout(function() {
-            closeNotification(notificationModal.find('.close-btn'));
-        }, 5000);
-    }
-}
-
-function closeNotification(button) {
-    $(button).closest('.notification-modal').fadeOut(function() {
-        $(this).remove();
-    });
-}
-</script>
