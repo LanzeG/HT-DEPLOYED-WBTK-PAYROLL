@@ -1,5 +1,3 @@
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <?php
 include("../DBCONFIG.PHP");
 include("../LoginControl.php");
@@ -150,12 +148,20 @@ if ($printarray){
 <link rel="stylesheet" href="../../jquery-ui-1.12.1/jquery-ui.css">
 <link rel="stylesheet" href="../timeline.css">
 <link rel="stylesheet" href="../css/emp.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap">
 
 <!-- Chartist.js -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.css">
 <script src="https://cdn.jsdelivr.net/npm/chartist@0.11.4/dist/chartist.min.js"></script>
-
+<style>
+   .swal2-toast {
+    
+    background: #E4FCF1 !important;
+    color: #000000 !important;
+}
+</style>
 <script src="../jquery-ui-1.12.1/jquery-3.2.1.js"></script>
 <script src="../jquery-ui-1.12.1/jquery-ui.js"></script>
 
@@ -166,24 +172,17 @@ if ($printarray){
   $( function() {
       $( "#datepickerto" ).datepicker({ dateFormat: 'yy-mm-dd'});
       } );
-  
-</script>
-<script>
-  function toggleCollapse() {
-    var content = document.getElementById("content1");
-    content.classList.toggle("collapsed");
-    localStorage.setItem("collapseState", content.classList.contains("collapsed"));
-  }
-  window.onload = function() {
-    var isCollapsed = localStorage.getItem("collapseState");
-    if (isCollapsed === "true") {
-      toggleCollapse();
-    }
-  };
-</script>
-</head>
-<body>
-<script>
+      function toggleCollapse() {
+        var content = document.getElementById("content1");
+        content.classList.toggle("collapsed");
+        localStorage.setItem("collapseState", content.classList.contains("collapsed"));
+      }
+      window.onload = function() {
+        var isCollapsed = localStorage.getItem("collapseState");
+        if (isCollapsed === "true") {
+          toggleCollapse();
+        }
+      };
     <?php
     if (isset($_SESSION['uname']) && isset($_SESSION['empId']) && !isset($_SESSION['swal_displayed'])) {
       $_SESSION['swal_displayed'] = true;
@@ -202,13 +201,10 @@ if ($printarray){
     }
     ?>
   </script>
-<style>
-   .swal2-toast {
-    
-    background: #E4FCF1 !important;
-    color: #000000 !important;
-}
-</style>
+
+</head>
+<body>
+
 
 <header>
   <?php include('navbar2.php'); ?> 
