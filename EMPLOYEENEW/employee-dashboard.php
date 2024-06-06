@@ -344,13 +344,12 @@ $payperiodexec = mysqli_query($conn, $payperiodval) or die("FAILED TO QUERY TIME
     <div class="card shadow h-100" style="border-radius: 10px;">
         <div class="card-header" style="border-top-left-radius: 10px; border-top-right-radius: 10px; background-color: #2ff29e; color: #4929aa;">
             Salary Chart
-        </div>
-        
-        <div class="card-body">
-                    <div class="container">
-            <div class="chart pb-2 d-flex justify-content-center"> 
-            <canvas id="myPieChart"></canvas>
             </div>
+                <div class="card-body">
+                    <div class="container">
+                <div class="chart pb-2 d-flex justify-content-center"> 
+                <canvas id="myPieChart"></canvas>
+              </div>
             <form action="" method="post">
     <div class="row mt-1 pb-2">
         <div class="col-6">
@@ -368,7 +367,6 @@ $payperiodexec = mysqli_query($conn, $payperiodval) or die("FAILED TO QUERY TIME
     $payperiodsquery = "SELECT * FROM payperiods ORDER BY pperiod_start ASC";
     $payperiodsexecquery = mysqli_query($conn, $payperiodsquery) or die ("FAILED TO EXECUTE PAYPERIOD QUERY " . mysqli_error($conn));
     ?>
-
         <select name="payperiod" class="form-select form-select-sm" id="sel2" required>
     <option value="" disabled selected>Select payroll period</option>
                 <?php
@@ -380,27 +378,24 @@ $payperiodexec = mysqli_query($conn, $payperiodval) or die("FAILED TO QUERY TIME
                     </option>
                 <?php } ?>
             </select>
-      </div>
-    <div class="button d-flex justify-content-center align-items-center pt-2">
-    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-green-500 hover:bg-blue-green-600 text-white font-bold py-2 px-2 rounded-full inline-flex items-center" name="pperiod_btn1" style="width: 100px;">
-        Generate
-    </button>
-    <div class="uinfotab3">
-        <a href="employee-dashboard.php" class="btn btn-success btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-2 rounded-full inline-flex items-center" style="width: 100px; margin: 0 2px;">
-            <span class="icon"><i class="icon-refresh"></i></span> Refresh
-        </a>
-    </div>
-    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center" name="pperiod_btn" style="width: 100px; margin-left: 2px;">
-        Select
-    </button>
-</div>
-
-
-</div>
-</div>
-
+                </div>
+                    <div class="button d-flex justify-content-center align-items-center pt-2">
+                        <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-green-500 hover:bg-blue-green-600 text-white font-bold py-2 px-2 rounded-full inline-flex items-center" name="pperiod_btn1" style="width: 100px;">
+                            Generate
+                        </button>
+                    <div class="uinfotab3">
+                            <a href="employee-dashboard.php" class="btn btn-success btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-2 rounded-full inline-flex items-center" style="width: 100px; margin: 0 2px;">
+                                <span class="icon"><i class="icon-refresh"></i></span> Refresh
+                            </a>
+                        </div>
+                    <button type="submit" class="btn btn-primary printbtn btn-sm bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-full inline-flex items-center" name="pperiod_btn" style="width: 100px; margin-left: 2px;">
+                        Select
+                    </button>
+                    </div>
+                </div>
+            </div>
         </div>
-</div>
+    </div>
 </div>
     <div class="col-lg-4 col-md-12" style="margin-top: 20px;">
         <div class="card shadow h-100" style="border-radius: 10px;">
@@ -464,13 +459,11 @@ $payperiodexec = mysqli_query($conn, $payperiodval) or die("FAILED TO QUERY TIME
                                         if (count($dateParts) === 2) {
                                             $startDate = date('F j, Y', strtotime($dateParts[0]));
                                             $endDate = date('F j, Y', strtotime($dateParts[1]));
-                                            // echo "<tr><td colspan='6'>NO DATA FOUND ON ($startDate to $endDate)</td></tr>";
                                         } else {
                                             echo "<tr><td colspan='6'>NO DATA FOUND ON (" . $_SESSION['payperiods'] . ")</td></tr>";
                                         }
                                     }
                                 } else {
-                                    // echo "<tr><td colspan='6'>NO SELECTED PAYROLL PERIOD</td></tr>";
                                 }
                                 ?>
                             </tbody>
@@ -558,14 +551,11 @@ $earliestMonthResult = mysqli_query($conn, $earliestMonthQuery) or die(mysqli_er
 $earliestMonthRow = mysqli_fetch_assoc($earliestMonthResult);
 $earliestMonth = $earliestMonthRow['earliest_month'];
 
-// If the earliest month is null, set it to the beginning of the current year
 if (!$earliestMonth) {
     $earliestMonth = date('Y-01-01');
 }
 
-// Check if payroll period is selected
 if (!isset($period_start) || !isset($period_end)) {
-    // If no period is selected, fetch data for all months since the earliest recorded month
     $attendanceQuery = "
         SELECT
             YEAR(dtr.dtr_day) AS year,
@@ -669,12 +659,6 @@ var lineChart = new Chart(ctx, {
     }
 });
 </script>
-
-
-
-          <!-- New Card Section -->
-          
-         
 <?php
 
 function filterTable($searchquery)
@@ -750,8 +734,6 @@ unset($_SESSION['changepassnotif']);
     }
     return colors;
 }
-</script>
-<script>
   function animateValue(id, start, end, duration) {
     var range = end - start;
     var current = start;
@@ -770,8 +752,6 @@ unset($_SESSION['changepassnotif']);
   }
 
   animateValue("totalAttendance", 0, <?php echo isset($rowattquery['TOTAL_ATTENDANCE']) ? $rowattquery['TOTAL_ATTENDANCE'] : 0; ?>, 2000);
-</script>
-<script>
   function animateValue(id, start, end, duration) {
     var range = end - start;
     var current = start;
@@ -790,8 +770,6 @@ unset($_SESSION['changepassnotif']);
   }
 
   animateValue("totalLate", 0, <?php echo isset($rowattquery['TOTAL_LATE_HOURS']) ? $rowattquery['TOTAL_LATE_HOURS'] : 0; ?>, 2000);
-</script>
-<script>
   function animateValue(id, start, end, duration) {
     var range = end - start;
     var current = start;
@@ -809,8 +787,6 @@ unset($_SESSION['changepassnotif']);
     }, stepTime);
   }
   animateValue("totalUndertime", 0, <?php echo isset($rowattquery['TOTAL_UNDERTIME_HOURS']) ? $rowattquery['TOTAL_UNDERTIME_HOURS'] : 0; ?>, 2000);
-</script>
-<script>
     function animateValue(id, start, end, duration) {
         var range = end - start;
         var current = start;
@@ -828,8 +804,6 @@ unset($_SESSION['changepassnotif']);
         }, stepTime);
     }
     animateValue("totalAbsences", 0, <?php echo isset($total_absences) ? $total_absences : 0; ?>, 2000);
-</script>
-<script>
   function toggleCollapse() {
     var content = document.getElementById("content1");
     content.classList.toggle("collapsed");
