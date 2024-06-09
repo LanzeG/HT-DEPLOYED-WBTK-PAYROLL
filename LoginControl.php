@@ -3,6 +3,8 @@ include("DBCONFIG.PHP");
 include("logfunctions.PHP");
 
 session_start();
+date_default_timezone_set('Asia/Manila');
+$current_datetime = date('Y-m-d H:i:s');
 
 if (isset($_POST['login_btn'])) {
     $username = $_POST['adminUser'];
@@ -20,7 +22,7 @@ if (isset($_POST['login_btn'])) {
         or die("Failed to query database " . mysqli_error($conn));
 
     $row = mysqli_fetch_array($result);
-    if ($row['user_name'] == $username && $row['pass_word'] == $password && $row['acct_type'] == "Administrator") {
+    if ($row['user_name'] == $username && $row['pass_word'] == $password && ($row['acct_type'] == "Administrator" || $row['acct_type'] == "Faculty w/ Admin")) {
         $userId = getUserId($conn, $username);
         $_SESSION['adminId'] = $userId;
         $_SESSION['empId'] = $userId;
@@ -33,19 +35,19 @@ if (isset($_POST['login_btn'])) {
         $adminFullName = $adminData['first_name'] . " " . $adminData['last_name'];
 
         //actlog
-        logActivity($conn, $userId, 'Administrator Login');
-        adminlogActivity($conn, $userId, $adminFullName, 'Administrator Login');
+        logActivity($conn, $userId, 'Administrator Login',$current_datetime);
+        adminlogActivity($conn, $userId, $adminFullName, 'Administrator Login',$current_datetime);
         header("location: ADMINNEW/admintry.php");
-    } else if ($row['user_name'] == $username && $row['pass_word'] == $password && $row['acct_type'] == "Employee") {
+    } else if ($row['user_name'] == $username  && ($row['acct_type'] == "Employee" || $row['acct_type'] == "Faculty")){
         $userId = getUserId($conn, $username);
         $_SESSION['empId'] = $userId;
-        logActivity($conn, $userId, 'Employee Login');
-        header("Location: EMPLOYEENEW/try.php");
+        logActivity($conn, $userId, 'Employee Login',$current_datetime);
+        header("Location: EMPLOYEENEW/employee-dashboard.php");
     } else if ($row['user_name'] == $username && $row['pass_word'] == $password && $row['acct_type'] == "Master") {
         $userId = getUserId($conn, $username);
         $_SESSION['adminId'] = $userId;
         $_SESSION['empId'] = $userId;
-        $_SESSION['master'] = true;
+        $_SESSION['master'] = $userId;
 
          //for adminname
          $adminname = "SELECT first_name, last_name FROM employees where emp_id = '$userId'";
@@ -54,8 +56,8 @@ if (isset($_POST['login_btn'])) {
  
          $adminFullName = $adminData['first_name'] . " " . $adminData['last_name'];
 
-        logActivity($conn, $userId, 'Master Administrator Login');
-        adminlogActivity($conn, $userId, $adminFullName, 'Master Administrator Login');
+        logActivity($conn, $userId, 'Master Administrator Login',$current_datetime);
+        adminlogActivity($conn, $userId, $adminFullName, 'Master Administrator Login',$current_datetime);
         header("location: ADMINNEW/admintry.php");
     }else {
         
